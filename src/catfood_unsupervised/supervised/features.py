@@ -9,20 +9,18 @@ from sklearn.preprocessing import OneHotEncoder
 
 from catfood_unsupervised.supervised.config import (
     ANOMALY_COLUMN,
-    FEATURE_COLUMN_INDICES,
+    FEATURE_COLUMNS,
     TARGET_COLUMN,
 )
 
 
 def get_supervised_feature_columns(df: pd.DataFrame) -> list[str]:
-    missing_indices = [
-        index for index in FEATURE_COLUMN_INDICES if index >= len(df.columns)
-    ]
-    if missing_indices:
+    missing_columns = [column for column in FEATURE_COLUMNS if column not in df.columns]
+    if missing_columns:
         raise ValueError(
-            f"Dataset is missing expected supervised columns at indices: {missing_indices}"
+            f"Dataset is missing expected supervised columns: {missing_columns}"
         )
-    return [df.columns[index] for index in FEATURE_COLUMN_INDICES]
+    return list(FEATURE_COLUMNS)
 
 
 def build_supervised_feature_frame(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.Series]:

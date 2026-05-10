@@ -14,8 +14,7 @@ def load_supervised_dataset(path: str | Path) -> pd.DataFrame:
     if missing:
         raise ValueError(f"Missing required columns: {sorted(missing)}")
 
-    filtered = df.loc[pd.to_numeric(df[ANOMALY_COLUMN], errors="coerce").fillna(1).eq(0)].copy()
-    filtered[TARGET_COLUMN] = pd.to_numeric(
-        filtered[TARGET_COLUMN], errors="raise"
-    ).astype(int)
+    anomaly_flags = pd.to_numeric(df[ANOMALY_COLUMN], errors="coerce")
+    filtered = df.loc[anomaly_flags.eq(0)].copy()
+    filtered[TARGET_COLUMN] = pd.to_numeric(filtered[TARGET_COLUMN], errors="raise").astype(int)
     return filtered.reset_index(drop=True)
