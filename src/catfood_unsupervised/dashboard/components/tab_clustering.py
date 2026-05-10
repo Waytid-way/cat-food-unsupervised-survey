@@ -1,0 +1,118 @@
+from __future__ import annotations
+
+from typing import Any
+
+import dash_bootstrap_components as dbc
+import numpy as np
+import plotly.express as px
+import scipy.cluster.hierarchy as sch
+from dash import dcc, html
+
+from catfood_unsupervised.dashboard.data_loader import DashboardData
+
+
+def _get_nested(metrics: dict, path: list) -> Any:
+    node = metrics
+    for key in path:
+        node = node[key]
+    return node
+
+
+def render_clustering_tab(data: DashboardData) -> html.Div:
+    metrics = data.metrics
+    clean_df = data.clean_df
+
+    ev_ratio = metrics["pca"]["explained_variance_ratio"]
+    cumulative = metrics["pca"]["cumulative_explained_variance"]
+    components = list(range(1, len(ev_ratio) + 1))
+
+    scree_fig = px.bar(
+        x=components,
+        y=[v * 100 for v in ev_ratio],
+        title="PCA Scree Plot — Variance Explained per Component",
+        labels={"x": "Principal Component", "y": "Variance Explained (%)"},
+        color=[v * 100 for v in ev_ratio],
+        color_continuous_scale="Viridis",
+    )
+    for i, (comp, cum) in enumerate(zip(components, cumulative)):
+        scree_fig.add_annotation(
+            x=comp, y=(ev_ratio[i] * 100) + 0.5,
+            text=f"{cum * 100:.1f}%",
+            showarrow=False,
+            font=dict(size=9),
+        )
+
+    pca_df = data.pca_scores.copy()
+    pca_df["segment"] = clean_df["segment"].values
+    scatter_fig = px.scatter(
+        pca_df,
+        x="PC1",
+        y="PC2",
+        color="segment",
+        title="PC1 vs PC2 — K-Means Clusters (k=2)",
+        labels={"PC1": "PC1", "PC2": "PC2"},
+        color_discrete_map={"1": "#2E86AB", "2": "#F18F01"},
+    )
+
+    ks = [row["k"] for row in metrics["kmeans_evaluation"]]
+    inertias = [row["inertia"] for row in metrics["kmeans_evaluation"]]
+    silhouettes = [row["silhouette_score"] for row in metrics["kmeans_evaluation"]]
+    db_scores = [row["davies_bouldin_score"] for row in metrics["kmeans_evaluation"]]
+
+    elbow_fig = px.line(
+        x=ks, y=inertias,
+        title="Elbow Chart — Inertia vs k",
+        labels={"x": "k", "y": "Inertia"},
+        markers=True,
+    )
+    elbow_fig.update_traces(line_color="#2E86AB")
+
+    silhouette_fig = px.line(
+        x=ks, y=silhouettes,
+        title="Silhouette Score vs k",
+        labels={"x": "k", "y": "Silhouette Score"},
+        markers=True,
+    )
+    silhouette_fig.update_traces(line_color="#A23B72")
+
+    db_fig = px.line(
+        x=ks, y=db_scores,
+        title="Davies-Bouldin Index vs k",
+        labels={"x": "k", "y": "Davies-Bouldin Index"},
+        markers=True,
+    )
+    db_fig.update_traces(line_color="#F18F01")
+
+    option_cols = [c for c in clean_df.columns if c.startswith("option_") and "_ips" in c]
+    X_for_hier = clean_df[option_cols].values
+    linkage_matrix = sch.linkage(X_for_hier, method="ward")
+
+    dendrogram_fig = px.imshow(
+        linkage_matrix,
+        title="Hierarchical Clustering Dendrogram (Ward)",
+        color_continuous_scale="Viridis",
+    )
+
+    return html.Div(
+        [
+            dbc.Row(
+                [
+                    dbc.Col(dcc.Graph(figure=scree_fig), width=6),
+                    dbc.Col(dcc.Graph(figure=scatter_fig), width=6),
+                ],
+                className="mb-4",
+            ),
+            dbc.Row(
+                [
+                    dbc.Col(dcc.Graph(figure=elbow_fig), width=4),
+                    dbc.Col(dcc.Graph(figure=silhouette_fig), width=4),
+                    dbc.Col(dcc.Graph(figure=db_fig), width=4),
+                ],
+                className="mb-4",
+            ),
+            dbc.Row(
+                dbc.Col(dcc.Graph(figure=dendrogram_fig), width=12),
+            ),
+        ],
+        id="tab_clustering",
+    )
