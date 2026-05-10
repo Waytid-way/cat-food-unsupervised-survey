@@ -7,9 +7,46 @@ import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 import scipy.cluster.hierarchy as sch
-from dash import dcc, html
+from dash import dcc, dash_table as dt, html
 
 from catfood_unsupervised.dashboard.data_loader import DashboardData
+
+
+def _render_kmeans_table(metrics: dict) -> dt.DataTable:
+    ev = metrics.get("kmeans_evaluation", [])
+    rows = []
+    best_silhouette = -1
+    best_db = float("inf")
+    best_inertia = float("inf")
+
+    for row in ev:
+        k = row.get("k", 0)
+        sil = row.get("silhouette_score", 0)
+        db = row.get("davies_bouldin_score", 0)
+        inert = row.get("inertia", 0)
+        rows.append({"k": k, "Silhouette Score": round(sil, 3), "Davies-Bouldin Index": round(db, 3), "Inertia": round(inert, 1)})
+        if sil > best_silhouette:
+            best_silhouette = sil
+        if db < best_db:
+            best_db = db
+        if inert < best_inertia:
+            best_inertia = inert
+
+    for row in rows:
+        sil = row["Silhouette Score"]
+        row["Silhouette Score"] = str(sil) + (" ★" if sil == best_silhouette else "")
+        db = row["Davies-Bouldin Index"]
+        row["Davies-Bouldin Index"] = str(db) + (" ★" if db == best_db else "")
+        inert = row["Inertia"]
+        row["Inertia"] = str(inert) + (" ★" if inert == best_inertia else "")
+
+    return dt.DataTable(
+        columns=[{"name": c, "id": c} for c in ["k", "Silhouette Score", "Davies-Bouldin Index", "Inertia"]],
+        data=rows,
+        style_table={"width": "60%"},
+        style_cell={"textAlign": "center"},
+        style_header={"background": "#F8F9FA", "fontWeight": "bold"},
+    )
 
 
 def _make_dendrogram_fig(linkage_matrix):
@@ -135,6 +172,8 @@ def render_clustering_tab(data: DashboardData) -> html.Div:
             dbc.Row(
                 dbc.Col(dcc.Graph(figure=dendrogram_fig), width=12),
             ),
+            html.H5("K-Means Evaluation Table", className="section-header mt-4"),
+            dbc.Row(dbc.Col(_render_kmeans_table(metrics), width=12)),
         ],
         id="tab_clustering",
     )
