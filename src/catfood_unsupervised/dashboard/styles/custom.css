@@ -1,0 +1,51 @@
+/* Enhanced card styling */
+.card {
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border: none;
+    transition: box-shadow 0.2s ease;
+}
+
+.card:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+/* Better plot backgrounds */
+.js-plotly-plot .plotly .modebar {
+    background: transparent;
+}
+
+/* Section headers */
+.section-header {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #2E86AB;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #2E86AB;
+}
+
+/* Segment accent borders */
+.segment-1-accent {
+    border-left: 4px solid #2E86AB !important;
+}
+
+.segment-2-accent {
+    border-left: 4px solid #F18F01 !important;
+}
+
+/* Better table styling */
+.dash-table-container .dash-table {
+    font-size: 0.9rem;
+}
+
+/* Metric highlight */
+.metric-highlight {
+    font-weight: 700;
+    color: #2E86AB;
+}
+
+/* Tab content padding */
+.tab-content {
+    padding-top: 16px;
+}
