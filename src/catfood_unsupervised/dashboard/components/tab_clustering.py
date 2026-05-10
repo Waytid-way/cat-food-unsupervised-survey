@@ -5,10 +5,36 @@ from typing import Any
 import dash_bootstrap_components as dbc
 import numpy as np
 import plotly.express as px
+import plotly.graph_objects as go
 import scipy.cluster.hierarchy as sch
 from dash import dcc, html
 
 from catfood_unsupervised.dashboard.data_loader import DashboardData
+
+
+def _make_dendrogram_fig(linkage_matrix):
+    d = sch.dendrogram(linkage_matrix, no_labels=True, color_threshold=0)
+    fig = go.Figure()
+    for i in range(len(d["icoord"])):
+        fig.add_trace(
+            go.Scatter(
+                x=d["icoord"][i],
+                y=d["dcoord"][i],
+                mode="lines",
+                showlegend=False,
+                line=dict(color="#2E86AB", width=1.5),
+            )
+        )
+    fig.update_layout(
+        title="Hierarchical Clustering Dendrogram (Ward)",
+        showlegend=False,
+        xaxis=dict(showticklabels=False, title="", showgrid=False),
+        yaxis=dict(title="Distance", showgrid=True),
+        plot_bgcolor="white",
+        width=900,
+        height=400,
+    )
+    return fig
 
 
 def _get_nested(metrics: dict, path: list) -> Any:
@@ -51,7 +77,7 @@ def render_clustering_tab(data: DashboardData) -> html.Div:
         color="segment",
         title="PC1 vs PC2 — K-Means Clusters (k=2)",
         labels={"PC1": "PC1", "PC2": "PC2"},
-        color_discrete_map={"1": "#2E86AB", "2": "#F18F01"},
+        color_discrete_map={1: "#2E86AB", 2: "#F18F01"},
     )
 
     ks = [row["k"] for row in metrics["kmeans_evaluation"]]
@@ -87,11 +113,7 @@ def render_clustering_tab(data: DashboardData) -> html.Div:
     X_for_hier = clean_df[option_cols].values
     linkage_matrix = sch.linkage(X_for_hier, method="ward")
 
-    dendrogram_fig = px.imshow(
-        linkage_matrix,
-        title="Hierarchical Clustering Dendrogram (Ward)",
-        color_continuous_scale="Viridis",
-    )
+    dendrogram_fig = _make_dendrogram_fig(linkage_matrix)
 
     return html.Div(
         [
