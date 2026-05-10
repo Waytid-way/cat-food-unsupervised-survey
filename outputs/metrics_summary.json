@@ -1,0 +1,129 @@
+{
+  "data_path": "C:\\Users\\COM\\Projects\\Cat-food Unsupervised\\BU Data from Survey Cases_final(5).csv",
+  "row_counts": {
+    "raw_loaded": 167,
+    "completed_top3": 148
+  },
+  "selected_top3_column": "จากตัวเลือกทั้งหมด คุณชอบการออกแบบบรรจุภัณฑ์อาหารแมวสำเร็จรูปแบบใดมากที่สุด 3 อันดับแรก",
+  "pca": {
+    "n_components": 8,
+    "explained_variance": [
+      7.576408266895894,
+      5.759786800617706,
+      4.5244093763182684,
+      4.438041662559956,
+      3.9928517043514677,
+      3.219782244039325,
+      2.668659311402792,
+      2.344230350760985
+    ],
+    "explained_variance_ratio": [
+      0.15050432638293204,
+      0.11441738644470316,
+      0.08987678085388999,
+      0.08816109789139379,
+      0.07931745953238732,
+      0.06396053917213258,
+      0.05301255659137982,
+      0.046567819129981765
+    ],
+    "cumulative_explained_variance": [
+      0.15050432638293204,
+      0.2649217128276352,
+      0.3547984936815252,
+      0.442959591572919,
+      0.5222770511053063,
+      0.5862375902774389,
+      0.6392501468688188,
+      0.6858179659988005
+    ],
+    "singular_values": [
+      33.372623739132294,
+      29.097915040270546,
+      25.78930356405123,
+      25.54196790375232,
+      24.22703449743005,
+      21.755642713415313,
+      19.806385808021876,
+      18.56345500066905
+    ],
+    "total_explained_variance_ratio": 0.6858179659988004,
+    "input_feature_count": 50,
+    "ipsatized": true,
+    "standardized": true,
+    "variance_threshold": 0.8,
+    "max_evaluated_components": 8,
+    "selected_n_components": 8,
+    "exploratory_cumulative_explained_variance": [
+      0.15050432638293204,
+      0.2649217128276352,
+      0.3547984936815252,
+      0.442959591572919,
+      0.5222770511053063,
+      0.5862375902774389,
+      0.6392501468688188,
+      0.6858179659988005
+    ]
+  },
+  "kmeans_evaluation": [
+    {
+      "k": 2,
+      "inertia": 4358.8631144252395,
+      "silhouette_score": 0.19251294520813184,
+      "davies_bouldin_score": 2.0315857664061663
+    },
+    {
+      "k": 3,
+      "inertia": 3894.628989757347,
+      "silhouette_score": 0.13171657854395538,
+      "davies_bouldin_score": 2.0950922734356703
+    },
+    {
+      "k": 4,
+      "inertia": 3543.753464146733,
+      "silhouette_score": 0.15031842235833778,
+      "davies_bouldin_score": 1.8238734906219543
+    },
+    {
+      "k": 5,
+      "inertia": 3311.9043860010142,
+      "silhouette_score": 0.1513195612957045,
+      "davies_bouldin_score": 1.7795128600684111
+    },
+    {
+      "k": 6,
+      "inertia": 3114.7534795918,
+      "silhouette_score": 0.1642338361672661,
+      "davies_bouldin_score": 1.608180996096994
+    },
+    {
+      "k": 7,
+      "inertia": 2985.7785254426476,
+      "silhouette_score": 0.13774667896087456,
+      "davies_bouldin_score": 1.7672336946082647
+    }
+  ],
+  "final_cluster_k": 2,
+  "final_cluster_key": "segment",
+  "hierarchical_validation": {
+    "linkage_method": "ward",
+    "distance_metric": "euclidean",
+    "cophenetic_correlation": 0.4731874061924989,
+    "n_observations": 148
+  },
+  "anomaly_detection": {
+    "contamination": "auto",
+    "anomaly_count": 26,
+    "anomaly_rate": 0.17567567567567569
+  },
+  "segment_sizes": {
+    "1": 36,
+    "2": 112
+  },
+  "output_files": {
+    "clean_dataset_with_segments": "C:\\Users\\COM\\Projects\\Cat-food Unsupervised\\outputs\\clean_dataset_with_segments.csv",
+    "metrics_summary": "C:\\Users\\COM\\Projects\\Cat-food Unsupervised\\outputs\\metrics_summary.json",
+    "correlation_matrix": "C:\\Users\\COM\\Projects\\Cat-food Unsupervised\\outputs\\correlation_matrix.csv",
+    "segment_profiles": "C:\\Users\\COM\\Projects\\Cat-food Unsupervised\\outputs\\segment_profiles.csv"
+  }
+}

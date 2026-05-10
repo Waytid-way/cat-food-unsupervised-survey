@@ -1,0 +1,11 @@
+Metadata-Version: 2.4
+Name: catfood-unsupervised
+Version: 0.1.0
+Summary: Unsupervised learning pipeline for the BU cat food survey.
+Requires-Python: >=3.10
+Requires-Dist: dash>=2.14
+Requires-Dist: plotly>=5.18
+Requires-Dist: dash-bootstrap-components>=1.5
+Requires-Dist: pandas>=2.1
+Requires-Dist: scipy>=1.11
+Requires-Dist: scikit-learn>=1.3

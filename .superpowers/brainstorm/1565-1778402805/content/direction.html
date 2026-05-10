@@ -1,0 +1,31 @@
+<h2>UI/UX Upgrade Direction</h2>
+<p class="subtitle">เลือก direction หลักสำหรับ dashboard upgrade</p>
+
+<div class="options">
+  <div class="option" data-choice="A" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Enhanced Dashboard</h3>
+      <p>อัปเกรด Dash ให้สวยขึ้น: custom CSS, better charts, dark/light mode, smooth animations</p>
+      <p><strong>Pros:</strong> เร็ว, maintain ง่ายใน codebase เดียว<br><strong>Cons:</strong> Dash ยังมีข้อจำกัดด้าน interactivity</p>
+    </div>
+  </div>
+  <div class="option" data-choice="B" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Modern Web App (React)</h3>
+      <p>สร้าง React/Vue frontend แยกต่างหาก เรียก API จาก Python backend</p>
+      <p><strong>Pros:</strong> สวยกว่า, interactive มาก, modern tooling<br><strong>Cons:</strong> ใช้เวลา 3-4 เท่าของ A</p>
+    </div>
+  </div>
+  <div class="option" data-choice="C" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Visual Presentation Layer</h3>
+      <p>ใช้ Huashu Design สร้าง infographics, presentation layer ที่ export เป็น HTML/slides/MP4</p>
+      <p><strong>Pros:</strong> งาน visual สวยมาก, export ได้หลาย format<br><strong>Cons:</strong> ไม่ใช่ real-time dashboard</p>
+    </div>
+  </div>
+</div>
+
+<p class="section" style="margin-top:24px">หรือถ้าต้องการ <strong>mix</strong> (เช่น A+C คือใช้ Enhanced Dashboard + Huashu สำหรับ presentation) — บอกได้เลยครับ</p>
