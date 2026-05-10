@@ -1,10 +1,66 @@
 from __future__ import annotations
 
+import pandas as pd
+
 import dash_bootstrap_components as dbc
 import plotly.express as px
+import plotly.graph_objects as go
 from dash import dcc, html
 
 from catfood_unsupervised.dashboard.data_loader import DashboardData
+
+
+def _render_top3_breakdown(clean_df: pd.DataFrame) -> dcc.Graph:
+    options = [f"Opt {i+1:02d}" for i in range(10)]
+
+    fig = go.Figure()
+    for rank_idx, (col_idx, label, color) in enumerate([
+        (79, "Rank 1 (3 pts)", "#2E86AB"),
+        (80, "Rank 2 (2 pts)", "#A23B72"),
+        (81, "Rank 3 (1 pt)", "#F18F01"),
+    ]):
+        col = clean_df.columns[col_idx]
+        vc = clean_df[col].astype(str).str.strip().value_counts()
+        values = [vc.get(str(i), 0) for i in range(1, 11)]
+        fig.add_trace(go.Bar(
+            name=label,
+            x=options,
+            y=values,
+            marker_color=color,
+        ))
+
+    fig.update_layout(
+        title="Top-3 Ranking Breakdown by Option",
+        barmode="group",
+        height=350,
+        plot_bgcolor="white",
+        showlegend=True,
+    )
+    return dcc.Graph(figure=fig)
+
+
+def _render_option_rating_heatmap(clean_df: pd.DataFrame) -> dcc.Graph:
+    opt_means = clean_df[[c for c in clean_df.columns if c.startswith("option_") and "_attribute_" in c]].mean()
+
+    matrix = []
+    for opt in range(1, 11):
+        row = [opt_means.get(f"option_{opt:02d}_attribute_{attr:02d}", 0) for attr in range(1, 6)]
+        matrix.append(row)
+
+    fig = go.Figure(data=go.Heatmap(
+        z=matrix,
+        x=["Attr 1", "Attr 2", "Attr 3", "Attr 4", "Attr 5"],
+        y=[f"Opt {i:02d}" for i in range(1, 11)],
+        colorscale="RdYlGn",
+        zmin=1, zmax=5,
+        colorbar_title="Rating",
+    ))
+    fig.update_layout(
+        title="Option Rating Distribution (Mean Agreement 1-5)",
+        height=400,
+        plot_bgcolor="white",
+    )
+    return dcc.Graph(figure=fig)
 
 
 def render_eda_tab(data: DashboardData) -> html.Div:
@@ -95,6 +151,10 @@ def render_eda_tab(data: DashboardData) -> html.Div:
                     dbc.Col(dcc.Graph(figure=vote_fig), width=6),
                 ],
             ),
+            html.H5("Top-3 Ranking Breakdown", className="section-header mt-4"),
+            dbc.Row(dbc.Col(dcc.Graph(figure=_render_top3_breakdown(clean_df)), width=12)),
+            html.H5("Option Rating Distribution", className="section-header mt-4"),
+            dbc.Row(dbc.Col(dcc.Graph(figure=_render_option_rating_heatmap(clean_df)), width=12)),
         ],
         id="tab_eda",
     )
