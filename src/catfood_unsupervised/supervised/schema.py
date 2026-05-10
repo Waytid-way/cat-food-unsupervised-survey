@@ -3,6 +3,7 @@ from __future__ import annotations
 TARGET_COLUMN = "segment"
 ANOMALY_COLUMN = "anomaly_flag"
 
+# Canonical supervised feature contract used by training, scoring, and the UI.
 FEATURE_COLUMNS = (
     "คุณสมบัติของอาหารแมวสำเร็จรูปชนิดเม็ดที่ส่งผลต่อการตัดสินใจซื้อ [ใช้วัตถุดิบจากธรรมชาติ]",
     "คุณสมบัติของอาหารแมวสำเร็จรูปชนิดเม็ดที่ส่งผลต่อการตัดสินใจซื้อ [ใช้วัตถุดิบนำเข้าจากต่างประเทศ เช่น เนื้อปลาทูน่าจากญี่ปุ่น]",

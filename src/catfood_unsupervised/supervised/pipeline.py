@@ -12,10 +12,12 @@ from sklearn.model_selection import train_test_split
 
 from catfood_unsupervised.supervised.config import (
     ANOMALY_COLUMN,
+    BEST_MODEL_FILENAME,
     DEFAULT_INPUT_PATH,
     DEFAULT_OUTPUT_DIR,
     DEFAULT_REPORT_DIR,
     RANDOM_STATE,
+    SCORING_ENTRYPOINT,
     TARGET_COLUMN,
     TEST_SIZE,
 )
@@ -27,6 +29,7 @@ from catfood_unsupervised.supervised.models import (
     extract_feature_importance,
 )
 from catfood_unsupervised.supervised.reporting import write_reports_from_output_dir
+from catfood_unsupervised.supervised.schema import FEATURE_COLUMNS
 
 
 def run_supervised_pipeline(
@@ -64,6 +67,7 @@ def run_supervised_pipeline(
         y_test,
         random_state=random_state,
     )
+    feature_columns = list(FEATURE_COLUMNS)
     class_labels = sorted(pd.unique(y))
     confusion = _build_confusion_matrix(y_test, best_predictions["y_pred"], class_labels)
     report = classification_report(
@@ -74,13 +78,19 @@ def run_supervised_pipeline(
         zero_division=0,
     )
     roc_auc = _compute_binary_roc_auc(best_predictions, class_labels)
+    output_paths = _build_output_paths(output_dir)
 
     metrics = {
-        "input_path": str(Path(input_path).resolve()),
+        "input_path": _workspace_neutral_path(input_path),
         "row_count": int(len(df)),
         "feature_count": int(X.shape[1]),
-        "class_labels": [int(label) if isinstance(label, (np.integer, int)) else str(label) for label in class_labels],
+        "feature_columns": _json_safe(feature_columns),
+        "class_labels": _json_safe(
+            [int(label) if isinstance(label, (np.integer, int)) else str(label) for label in class_labels]
+        ),
         "best_model_name": best_model_name,
+        "best_model_path": BEST_MODEL_FILENAME,
+        "scoring_entrypoint": SCORING_ENTRYPOINT,
         "best_model_accuracy": float(comparison.iloc[0]["accuracy"]),
         "best_model_macro_f1": float(comparison.iloc[0]["macro_f1"]),
         "best_model_weighted_f1": float(comparison.iloc[0]["weighted_f1"]),
@@ -89,7 +99,6 @@ def run_supervised_pipeline(
         "model_comparison": _json_safe(comparison.to_dict(orient="records")),
     }
 
-    output_paths = _build_output_paths(output_dir)
     _write_outputs(
         output_paths=output_paths,
         comparison=comparison,
@@ -149,7 +158,7 @@ def _build_output_paths(output_dir: str | Path) -> dict[str, Path]:
         "confusion_matrix": base / "confusion_matrix.csv",
         "feature_importance": base / "feature_importance.csv",
         "predictions": base / "predictions.csv",
-        "best_model": base / "best_model.pkl",
+        "best_model": base / BEST_MODEL_FILENAME,
     }
 
 
@@ -191,4 +200,12 @@ def _json_safe(value: Any) -> Any:
     if isinstance(value, (float, int, bool, str)) or value is None:
         return value
     return str(value)
+
+
+def _workspace_neutral_path(path: str | Path) -> str:
+    candidate = Path(path)
+    try:
+        return str(candidate.resolve().relative_to(Path.cwd().resolve()))
+    except ValueError:
+        return candidate.name
 

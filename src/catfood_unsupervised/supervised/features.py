@@ -7,11 +7,7 @@ from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder
 
-from catfood_unsupervised.supervised.config import (
-    ANOMALY_COLUMN,
-    FEATURE_COLUMNS,
-    TARGET_COLUMN,
-)
+from catfood_unsupervised.supervised.schema import ANOMALY_COLUMN, FEATURE_COLUMNS, TARGET_COLUMN
 
 
 def get_supervised_feature_columns(df: pd.DataFrame) -> list[str]:

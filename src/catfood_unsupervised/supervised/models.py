@@ -17,9 +17,12 @@ from catfood_unsupervised.supervised.features import (
     build_supervised_preprocessor,
     make_supervised_pipeline,
 )
+from catfood_unsupervised.supervised.schema import FEATURE_COLUMNS
 
 
-def build_model_suite(random_state: int) -> Mapping[str, Pipeline]:
+def build_model_suite(random_state: int) -> Mapping[str, object]:
+    feature_columns = list(FEATURE_COLUMNS)
+
     def _make_logistic(feature_columns):
         return make_supervised_pipeline(
             build_supervised_preprocessor(feature_columns),
@@ -58,10 +61,10 @@ def build_model_suite(random_state: int) -> Mapping[str, Pipeline]:
         )
 
     return {
-        "logistic_regression": _make_logistic,
-        "random_forest": _make_random_forest,
-        "gradient_boosting": _make_gradient_boosting,
-        "svm_rbf": _make_svm,
+        "logistic_regression": lambda _ignored: _make_logistic(feature_columns),
+        "random_forest": lambda _ignored: _make_random_forest(feature_columns),
+        "gradient_boosting": lambda _ignored: _make_gradient_boosting(feature_columns),
+        "svm_rbf": lambda _ignored: _make_svm(feature_columns),
     }
 
 
@@ -72,13 +75,14 @@ def evaluate_model_suite(
     X_test: pd.DataFrame,
     y_test: pd.Series,
 ) -> tuple[pd.DataFrame, dict[str, Pipeline], dict[str, pd.DataFrame]]:
+    feature_columns = list(FEATURE_COLUMNS)
     rows: list[dict[str, object]] = []
     fitted_models: dict[str, Pipeline] = {}
     predictions: dict[str, pd.DataFrame] = {}
 
     for model_name in MODEL_ORDER:
         builder = model_builders[model_name]
-        model = builder(X_train.columns)
+        model = builder(feature_columns)
         model.fit(X_train, y_train)
         y_pred = model.predict(X_test)
         fitted_models[model_name] = model

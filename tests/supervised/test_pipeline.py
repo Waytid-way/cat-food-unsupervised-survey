@@ -4,6 +4,7 @@ from pathlib import Path
 
 import pandas as pd
 
+from catfood_unsupervised.supervised.schema import FEATURE_COLUMNS
 from catfood_unsupervised.supervised.pipeline import run_supervised_pipeline
 
 
@@ -41,3 +42,4 @@ def test_run_supervised_pipeline_writes_all_outputs(
     assert {"y_true", "y_pred"} <= set(predictions.columns)
     assert result["metrics"]["row_count"] == 12
     assert result["metrics"]["best_model_name"] == result["best_model_name"]
+    assert result["metrics"]["feature_columns"] == list(FEATURE_COLUMNS)

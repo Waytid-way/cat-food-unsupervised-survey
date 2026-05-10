@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from catfood_unsupervised.supervised.config import ANOMALY_COLUMN, TARGET_COLUMN
+from catfood_unsupervised.supervised.schema import ANOMALY_COLUMN, TARGET_COLUMN
 
 
 def load_supervised_dataset(path: str | Path) -> pd.DataFrame:

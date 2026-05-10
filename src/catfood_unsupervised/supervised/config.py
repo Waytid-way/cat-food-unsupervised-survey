@@ -25,9 +25,12 @@ MODEL_ORDER = (
 RANDOM_STATE = 42
 TEST_SIZE = 0.2
 N_PERMUTATION_REPEATS = 10
+BEST_MODEL_FILENAME = "best_model.pkl"
+SCORING_ENTRYPOINT = "catfood_unsupervised.supervised.scoring:predict_supervised_segment"
 
 __all__ = [
     "ANOMALY_COLUMN",
+    "BEST_MODEL_FILENAME",
     "DEFAULT_INPUT_PATH",
     "DEFAULT_OUTPUT_DIR",
     "DEFAULT_REPORT_DIR",
@@ -37,6 +40,7 @@ __all__ = [
     "N_PERMUTATION_REPEATS",
     "PROJECT_ROOT",
     "RANDOM_STATE",
+    "SCORING_ENTRYPOINT",
     "TARGET_COLUMN",
     "TEST_SIZE",
 ]
