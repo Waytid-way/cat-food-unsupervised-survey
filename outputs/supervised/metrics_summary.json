@@ -1,0 +1,71 @@
+{
+  "input_path": "C:\\Users\\wootty\\Downloads\\mylastproject\\cat-food-unsupervised-survey\\outputs\\clean_dataset_with_segments.csv",
+  "row_count": 122,
+  "feature_count": 18,
+  "class_labels": [
+    1,
+    2
+  ],
+  "best_model_name": "random_forest",
+  "best_model_accuracy": 0.88,
+  "best_model_macro_f1": 0.7967479674796748,
+  "best_model_weighted_f1": 0.864390243902439,
+  "roc_auc": 0.7587719298245614,
+  "classification_report": {
+    "1": {
+      "precision": 1.0,
+      "recall": 0.5,
+      "f1-score": 0.6666666666666666,
+      "support": 6.0
+    },
+    "2": {
+      "precision": 0.8636363636363636,
+      "recall": 1.0,
+      "f1-score": 0.926829268292683,
+      "support": 19.0
+    },
+    "accuracy": 0.88,
+    "macro avg": {
+      "precision": 0.9318181818181819,
+      "recall": 0.75,
+      "f1-score": 0.7967479674796748,
+      "support": 25.0
+    },
+    "weighted avg": {
+      "precision": 0.8963636363636364,
+      "recall": 0.88,
+      "f1-score": 0.864390243902439,
+      "support": 25.0
+    }
+  },
+  "model_comparison": [
+    {
+      "model_name": "random_forest",
+      "model_rank": 1,
+      "accuracy": 0.88,
+      "macro_f1": 0.7967479674796748,
+      "weighted_f1": 0.864390243902439
+    },
+    {
+      "model_name": "gradient_boosting",
+      "model_rank": 2,
+      "accuracy": 0.8,
+      "macro_f1": 0.7619047619047619,
+      "weighted_f1": 0.8114285714285714
+    },
+    {
+      "model_name": "svm_rbf",
+      "model_rank": 3,
+      "accuracy": 0.72,
+      "macro_f1": 0.6361746361746362,
+      "weighted_f1": 0.7269854469854471
+    },
+    {
+      "model_name": "logistic_regression",
+      "model_rank": 0,
+      "accuracy": 0.52,
+      "macro_f1": 0.5,
+      "weighted_f1": 0.552
+    }
+  ]
+}

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from catfood_unsupervised.supervised.config import DEFAULT_OUTPUT_DIR as SUPERVISED_OUTPUT_DIR
+
 KPI_CARDS = [
     {
         "id": "silhouette",
@@ -43,6 +45,7 @@ TAB_ITEMS = [
     {"label": "2. Correlation", "value": "tab_correlation", "href": "#tab_correlation"},
     {"label": "3. Clustering", "value": "tab_clustering", "href": "#tab_clustering"},
     {"label": "4. Persona", "value": "tab_persona", "href": "#tab_persona"},
+    {"label": "5. Supervised", "value": "tab_supervised", "href": "#tab_supervised"},
 ]
 
 PALETTE = {

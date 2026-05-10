@@ -12,9 +12,13 @@ from catfood_unsupervised.dashboard.components.tab_eda import render_eda_tab
 from catfood_unsupervised.dashboard.components.tab_correlation import render_correlation_tab
 from catfood_unsupervised.dashboard.components.tab_clustering import render_clustering_tab
 from catfood_unsupervised.dashboard.components.tab_persona import render_persona_tab
+from catfood_unsupervised.dashboard.components.tab_supervised import render_supervised_tab
 from catfood_unsupervised.dashboard.bootstrap import dbc
-from catfood_unsupervised.dashboard.config import TAB_ITEMS
+from catfood_unsupervised.dashboard.config import SUPERVISED_OUTPUT_DIR, TAB_ITEMS
 from catfood_unsupervised.dashboard.data_loader import load_all_data
+from catfood_unsupervised.dashboard.supervised_data_loader import (
+    load_supervised_dashboard_bundle,
+)
 
 OUTPUT_DIR = Path(os.environ.get("CATFOOD_OUTPUT_DIR", "outputs"))
 
@@ -39,6 +43,11 @@ try:
     KPI_METRICS = dashboard_data.metrics
 except Exception:
     KPI_METRICS = {}
+
+try:
+    supervised_dashboard_data = load_supervised_dashboard_bundle(SUPERVISED_OUTPUT_DIR)
+except Exception:
+    supervised_dashboard_data = None
 
 dash_app.layout = html.Div(
     [
@@ -86,4 +95,8 @@ def render_tab_content(selected_tab: str):
         return render_clustering_tab(data)
     elif selected_tab == "tab_persona":
         return render_persona_tab(data)
+    elif selected_tab == "tab_supervised":
+        if supervised_dashboard_data is None:
+            return html.Div("Supervised data not available")
+        return render_supervised_tab(supervised_dashboard_data)
     return html.Div("Select a tab")
