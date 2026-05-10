@@ -6,6 +6,7 @@ from pathlib import Path
 import dash
 import dash_bootstrap_components as dbc
 from dash import dcc, html
+from flask import send_from_directory
 
 from catfood_unsupervised.dashboard.components.kpi_banner import render_kpi_banner
 from catfood_unsupervised.dashboard.components.tab_eda import render_eda_tab
@@ -20,9 +21,18 @@ OUTPUT_DIR = Path(os.environ.get("CATFOOD_OUTPUT_DIR", "outputs"))
 dash_app = dash.Dash(
     __name__,
     title="Cat Food Survey — Unsupervised Learning",
-    external_stylesheets=[dbc.themes.BOOTSTRAP],
+    external_stylesheets=[
+        dbc.themes.BOOTSTRAP,
+        "/assets/custom.css",
+    ],
     meta_tags=[{"name": "viewport", "content": "width=device-width, initial-scale=1"}],
 )
+
+
+@dash_app.server.route("/assets/<path:path>")
+def serve_static(path):
+    styles_dir = Path(__file__).parent / "styles"
+    return send_from_directory(styles_dir, path)
 
 try:
     dashboard_data = load_all_data(OUTPUT_DIR)
