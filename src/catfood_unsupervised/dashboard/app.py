@@ -1,0 +1,79 @@
+from __future__ import annotations
+
+import os
+from pathlib import Path
+
+import dash
+import dash_bootstrap_components as dbc
+from dash import dcc, html
+
+from catfood_unsupervised.dashboard.components.kpi_banner import render_kpi_banner
+from catfood_unsupervised.dashboard.components.tab_eda import render_eda_tab
+from catfood_unsupervised.dashboard.components.tab_correlation import render_correlation_tab
+from catfood_unsupervised.dashboard.components.tab_clustering import render_clustering_tab
+from catfood_unsupervised.dashboard.components.tab_persona import render_persona_tab
+from catfood_unsupervised.dashboard.config import TAB_ITEMS
+from catfood_unsupervised.dashboard.data_loader import load_all_data
+
+OUTPUT_DIR = Path(os.environ.get("CATFOOD_OUTPUT_DIR", "outputs"))
+
+dash_app = dash.Dash(
+    __name__,
+    title="Cat Food Survey — Unsupervised Learning",
+    external_stylesheets=[dbc.themes.BOOTSTRAP],
+    meta_tags=[{"name": "viewport", "content": "width=device-width, initial-scale=1"}],
+)
+
+try:
+    dashboard_data = load_all_data(OUTPUT_DIR)
+    KPI_METRICS = dashboard_data.metrics
+except Exception:
+    KPI_METRICS = {}
+
+dash_app.layout = html.Div(
+    [
+        html.H1(
+            "🐱 Cat Food Packaging Survey — Unsupervised Learning",
+            className="text-center my-4",
+        ),
+        dbc.Container(
+            [
+                render_kpi_banner(KPI_METRICS),
+                dcc.Tabs(
+                    id="unsupervised-tabs",
+                    className="nav nav-tabs",
+                    children=[
+                        dcc.Tab(label=item["label"], value=item["value"])
+                        for item in TAB_ITEMS
+                    ],
+                ),
+                html.Div(id="tab_content"),
+            ],
+            fluid=True,
+        ),
+    ],
+    style={"background": "#F8F9FA", "min-height": "100vh", "padding": "20px"},
+)
+
+
+@dash_app.callback(
+    dash.Output("tab_content", "children"),
+    dash.Input("unsupervised-tabs", "value"),
+)
+def render_tab_content(selected_tab: str):
+    if not KPI_METRICS:
+        return html.Div("Data not available")
+    try:
+        data = load_all_data(OUTPUT_DIR)
+    except Exception:
+        return html.Div("Failed to load data")
+
+    if selected_tab == "tab_eda":
+        return render_eda_tab(data)
+    elif selected_tab == "tab_correlation":
+        return render_correlation_tab(data)
+    elif selected_tab == "tab_clustering":
+        return render_clustering_tab(data)
+    elif selected_tab == "tab_persona":
+        return render_persona_tab(data)
+    return html.Div("Select a tab")
