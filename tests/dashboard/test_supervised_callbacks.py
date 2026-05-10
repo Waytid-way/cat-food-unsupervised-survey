@@ -3,7 +3,6 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
-import pandas as pd
 
 from catfood_unsupervised.dashboard.supervised_callbacks import (
     score_and_store_supervised_row,
@@ -29,8 +28,7 @@ def test_score_and_store_supervised_row_persists_prediction_history(
     )
     bundle = load_supervised_dashboard_bundle(output_dir)
 
-    frame = pd.read_csv(supervised_fixture_path)
-    values = frame.iloc[0].loc[list(FEATURE_COLUMNS)].tolist()
+    values = [options[0] for options in bundle.feature_options.values()]
 
     outcome = score_and_store_supervised_row(values, bundle)
 

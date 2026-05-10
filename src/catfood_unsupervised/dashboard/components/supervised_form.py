@@ -15,10 +15,12 @@ class SupervisedFieldSpec:
     field_id: str
     label: str
     hint: str
-    placeholder: str
+    options: list[str]
 
 
-def build_supervised_field_specs() -> list[SupervisedFieldSpec]:
+def build_supervised_field_specs(
+    feature_options: dict[str, list[str]],
+) -> list[SupervisedFieldSpec]:
     specs: list[SupervisedFieldSpec] = []
     for index, column in enumerate(FEATURE_COLUMNS, start=1):
         specs.append(
@@ -27,7 +29,7 @@ def build_supervised_field_specs() -> list[SupervisedFieldSpec]:
                 field_id=f"supervised-feature-{index:02d}",
                 label=f"Question {index:02d}",
                 hint=column,
-                placeholder="Type the survey answer",
+                options=list(feature_options.get(column, [])),
             )
         )
     return specs
@@ -55,7 +57,7 @@ def render_supervised_form(field_specs: Iterable[SupervisedFieldSpec] | None = N
                     html.Div("Supervised input", className="supervised-form__eyebrow"),
                     html.H4("Build a customer row and score it in one click", className="supervised-form__title"),
                     html.P(
-                        "Fill the fields in canonical feature order. The model will keep that order when scoring, so the row you enter is the row that gets predicted.",
+                        "Pick a value for each canonical survey feature. Each dropdown is populated from the training data, so the row you enter matches the supervised schema exactly.",
                         className="supervised-form__lede",
                     ),
                 ],
@@ -87,16 +89,20 @@ def field_input_id(spec: SupervisedFieldSpec) -> str:
 
 
 def _render_field_card(spec: SupervisedFieldSpec) -> html.Div:
+    dropdown_options = [
+        {"label": option, "value": option}
+        for option in spec.options
+    ]
     return html.Div(
         [
             html.Label(spec.label, className="supervised-form__label"),
             html.Div(spec.hint, className="supervised-form__hint"),
-            dcc.Input(
+            dcc.Dropdown(
                 id=spec.field_id,
-                type="text",
-                value="",
-                placeholder=spec.placeholder,
-                className="form-control supervised-form__input",
+                options=dropdown_options,
+                placeholder="Select a survey answer",
+                clearable=False,
+                className="supervised-form__input",
             ),
         ],
         className="supervised-form__field",

@@ -35,7 +35,7 @@ def score_and_store_supervised_row(
     values: Sequence[Any],
     bundle: SupervisedDashboardBundle,
 ) -> SupervisedPredictionOutcome:
-    field_specs = build_supervised_field_specs()
+    field_specs = build_supervised_field_specs(bundle.feature_options)
     if len(values) != len(field_specs):
         raise ValueError("The supervised form is missing one or more values.")
 
@@ -81,7 +81,7 @@ def score_and_store_supervised_row(
 
 
 def register_supervised_callbacks(app, bundle: SupervisedDashboardBundle) -> None:
-    field_specs = build_supervised_field_specs()
+    field_specs = build_supervised_field_specs(bundle.feature_options)
     states = [State(spec.field_id, "value") for spec in field_specs]
 
     @app.callback(

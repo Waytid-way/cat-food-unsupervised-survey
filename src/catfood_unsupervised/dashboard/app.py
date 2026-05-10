@@ -23,7 +23,6 @@ from catfood_unsupervised.dashboard.supervised_callbacks import register_supervi
 from catfood_unsupervised.dashboard.supervised_data_loader import (
     load_supervised_dashboard_bundle,
 )
-from catfood_unsupervised.supervised.history_store import fetch_recent_prediction_history
 
 OUTPUT_DIR = Path(os.environ.get("CATFOOD_OUTPUT_DIR", "outputs"))
 
@@ -105,19 +104,11 @@ def render_tab_content(selected_tab: str):
     elif selected_tab == "tab_supervised":
         if supervised_dashboard_data is None:
             return html.Div("Supervised data not available")
-        recent_history = fetch_recent_prediction_history(
-            supervised_dashboard_data.history_db_path,
-            limit=8,
-        )
-        return render_supervised_tab(supervised_dashboard_data, recent_history)
+        return render_supervised_tab(supervised_dashboard_data)
     elif selected_tab == "tab_business_insight":
         if supervised_dashboard_data is None:
             return html.Div("Supervised data not available")
-        recent_history = fetch_recent_prediction_history(
-            supervised_dashboard_data.history_db_path,
-            limit=20,
-        )
-        return render_business_insight_tab(supervised_dashboard_data, recent_history)
+        return render_business_insight_tab(supervised_dashboard_data)
     return html.Div("Select a tab")
 
 

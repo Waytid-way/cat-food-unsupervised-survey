@@ -19,6 +19,12 @@ def render_business_insight_tab(
     bundle: SupervisedDashboardBundle,
     history_df: pd.DataFrame | None = None,
 ) -> html.Div:
+    if history_df is None:
+        from catfood_unsupervised.supervised.history_store import (
+            fetch_recent_prediction_history,
+        )
+
+        history_df = fetch_recent_prediction_history(bundle.history_db_path, limit=20)
     history = history_df.copy() if history_df is not None else pd.DataFrame()
     total_predictions = int(len(history))
     segment_counts = history["predicted_segment"].value_counts().sort_index() if not history.empty else pd.Series(dtype=int)

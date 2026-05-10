@@ -11,6 +11,7 @@ from sklearn.preprocessing import label_binarize
 from catfood_unsupervised.dashboard.bootstrap import dbc
 from catfood_unsupervised.dashboard.components.supervised_form import (
     render_supervised_form,
+    build_supervised_field_specs,
 )
 from catfood_unsupervised.dashboard.components.supervised_results import (
     render_prediction_result_panel,
@@ -31,6 +32,12 @@ def render_supervised_tab(
     feature_importance = bundle.feature_importance
     predictions = bundle.predictions
     class_labels = _extract_class_labels(metrics, predictions)
+    if recent_history is None:
+        from catfood_unsupervised.supervised.history_store import (
+            fetch_recent_prediction_history,
+        )
+
+        recent_history = fetch_recent_prediction_history(bundle.history_db_path, limit=8)
 
     hero = html.Div(
         [
@@ -69,7 +76,7 @@ def render_supervised_tab(
         [
             dbc.Col(
                 dbc.Card(
-                    dbc.CardBody([render_supervised_form()]),
+                    dbc.CardBody([render_supervised_form(build_supervised_field_specs(bundle.feature_options))]),
                     className="supervised-panel h-100",
                 ),
                 width=7,
@@ -146,8 +153,8 @@ def render_supervised_tab(
     return html.Div(
         [
             hero,
-            performance_strip,
             main_workflow,
+            performance_strip,
             html.Div(
                 [
                     html.Div("Supervised diagnostics", className="supervised-panel__title"),

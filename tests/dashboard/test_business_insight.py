@@ -5,7 +5,10 @@ from pathlib import Path
 from catfood_unsupervised.dashboard.components.tab_business_insight import (
     render_business_insight_tab,
 )
-from catfood_unsupervised.dashboard.supervised_data_loader import load_supervised_dashboard_bundle
+from catfood_unsupervised.dashboard.supervised_data_loader import (
+    SupervisedDashboardBundle,
+    load_supervised_dashboard_bundle,
+)
 from catfood_unsupervised.supervised.history_store import (
     append_prediction_history,
     fetch_recent_prediction_history,
@@ -48,8 +51,21 @@ def test_business_insight_reads_prediction_history_and_summarizes_usage(
         raw_input={"age": "30-39", "gender": "ชาย"},
     )
 
+    bundle = SupervisedDashboardBundle(
+        metrics=bundle.metrics,
+        comparison=bundle.comparison,
+        confusion_matrix=bundle.confusion_matrix,
+        feature_importance=bundle.feature_importance,
+        predictions=bundle.predictions,
+        feature_options=bundle.feature_options,
+        model_path=bundle.model_path,
+        history_db_path=history_db,
+    )
+
     history = fetch_recent_prediction_history(history_db, limit=10)
-    tab = render_business_insight_tab(bundle, history)
+    assert len(history) == 2
+
+    tab = render_business_insight_tab(bundle)
     rendered_text = " ".join(_collect_text(tab))
 
     assert "Prediction history" in rendered_text
