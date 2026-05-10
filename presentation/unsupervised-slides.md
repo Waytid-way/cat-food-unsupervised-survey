@@ -1,0 +1,366 @@
+# Unsupervised Learning — Slide Deck
+## Cat Food Packaging Survey | Customer Segmentation & Anomaly Detection
+
+---
+
+## สไลด์ 1 — Opening: Unsupervised Learning
+
+**หัวข้อ:** Unsupervised Learning – Customer Segmentation & Anomaly Detection
+
+**4 โมเดลหลัก:**
+
+| # | โมเดล | วัตถุประสงค์ |
+|---|---|---|
+| M1 | Descriptive + Correlation | ทำความเข้าใจข้อมูลก่อนวิเคราะห์ |
+| M2 | PCA | ลดมิติ 50 features → latent dimensions |
+| M3 | K-Means + Hierarchical | แบ่งกลุ่มลูกค้า + validate structure |
+| M4 | Isolation Forest | ตรวจจับผู้ตอบผิดปกติ |
+
+**Pipeline (Unsupervised):**
+
+```
+Raw Data (167 rows)
+       ▼
+[Data Preparation]
+Encode + Ipsatize + KNN Impute
+       ▼
+[PCA] ลดมิติ 50 → 8 components
+       ▼
+[K-Means] k=2 (Silhouette=0.193)
+       ▼
+[Hierarchical] Ward linkage (r=0.473)
+       ▼
+[Isolation Forest] 26 anomalies (17.6%)
+       ▼
+Segment Labels (0/1) + Anomaly Flags
+```
+
+---
+
+## สไลด์ 2 — Data Used for Unsupervised
+
+**Dataset:** `BU-Data-from-Survey-Cases_final-5-2.csv`
+
+| ขั้นตอน | จำนวน |
+|---|---|
+| Raw rows (รวม empty จาก Excel) | 1,001 |
+| Real responses | **167** |
+| Valid (top3 ครบ) | **148** |
+
+> ⚠️ "Ignore empty rows from Excel export, use only 167 real rows → 148 valid respondents"
+
+**Features ที่ใช้ใน Unsupervised:**
+
+| ประเภท | จำนวน | ตัวอย่าง |
+|---|---|---|
+| Likert (10 options × 5 attributes) | **50** | opt01_want_to_buy, opt03_stand_out... |
+| Buy factors | **5** | bf_taste, bf_natural, bf_famous_brand... |
+| Packaging importance | **8** | pkg_premium_look, pkg_cat_image... |
+| Demographic (encoded) | **5** | age_enc, gender_enc, marital_enc... |
+| **Total** | **~68** | ก่อน PCA → 8 components |
+
+---
+
+## สไลด์ 3 — Data Preparation
+
+**Encoding:**
+- Likert scale → ตัวเลข (1–5)
+- Buy factors → ตัวเลข (1–4)
+- Packaging importance → ตัวเลข (1–5)
+- Demographic → Label encoding
+
+**Ipsatization (กับ Likert 50 ตัว):**
+
+```
+Before Ipsatize:  PC1 = 31.7%  ← Response style bias
+                  (คนให้คะแนนสูงทุกอย่าง)
+
+After Ipsatize:   PC1 = 15.1%  ← Genuine preference
+                  (โครงสร้างข้อมูลแท้จริง)
+```
+
+**Missing Values:**
+- Buy factors: 18 ค่าหาย → ใช้ **KNNImputer (k=5)**
+- ทำหลัง Ipsatization และก่อน PCA
+
+---
+
+## สไลด์ 4 — Descriptive Statistics & Correlation
+
+**Demographic (n=148):**
+
+| ตัวแปร | กลุ่มเด่น | สัดส่วน |
+|---|---|---|
+| เพศ | หญิง | **73.0%** (108 คน) |
+| อายุ | 30–39 ปี | **41.9%** (62 คน) |
+| สถานภาพ | โสดไม่มีแฟน | 35.1% |
+
+**Buy Factors (mean /4):**
+
+| Factor | Mean |
+|---|---|
+| รสชาติกลมกล่อม (bf_taste) | **4.43** |
+| ใช้วัตถุดิบจากธรรมชาติ (bf_natural) | **4.26** |
+| แบรนด์มีชื่อเสียง (bf_famous_brand) | 4.06 |
+| วัตถุดิบนำเข้า (bf_imported) | 3.24 |
+| ผลิตภัณฑ์จากต่างประเทศ (bf_foreign_brand) | 3.16 |
+
+**Top 3 Option Votes (Weighted: rank1=3, rank2=2, rank3=1):**
+
+| อันดับ | Option | คะแนน |
+|---|---|---|
+| 🥇 1 | **opt03** | **251** |
+| 🥈 2 | opt02 | 138 |
+| 🥉 3 | opt01 | 114 |
+
+**Correlation Clusters (Spearman):**
+
+| กลุ่ม | Options | ลักษณะ |
+|---|---|---|
+| Classic/Safe | opt01 × opt02 | r = 0.568 |
+| Mainstream | opt03 × opt04 | r = 0.625 |
+| Niche Aesthetic | opt05 × opt09 | r = 0.635 |
+
+---
+
+## สไลด์ 5 — PCA: Concept + What We Did
+
+**เหตุผลที่ใช้ PCA:**
+- Input: 50 Likert features (high dimensional)
+- ลดมิติ → latent dimensions ที่นำไป cluster ได้
+- ลด noise และ correlation ระหว่าง attributes
+
+**Method:**
+- Input: Ipsatized Likert (148×50) + StandardScaler
+- Components ที่เลือก: **8 components**
+
+**Explained Variance:**
+
+| Component | Variance | Cumulative |
+|---|---|---|
+| PC1 | 15.1% | 15.1% |
+| PC2 | 11.4% | 26.5% |
+| PC3 | 9.0% | 35.5% |
+| PC4 | 8.8% | 44.3% |
+| PC5 | 7.9% | **52.2%** |
+| PC6 | 6.4% | 58.6% |
+| PC7 | 5.3% | 63.9% |
+| PC8 | 4.7% | 68.6% |
+
+> PC1–PC5 อธิบาย 52.2% ของ variance รวม
+> 8 components อธิบาย 68.6%
+
+---
+
+## สไลด์ 6 — PCA: Interpretation
+
+**PC1 (15.1%): Mainstream vs Niche Aesthetic**
+
+| Loading บวก | Loading ลบ |
+|---|---|
+| opt03, opt04 | opt09, opt10 |
+
+→ แยก mainstream preferences ออกจาก niche aesthetic
+
+**PC2 (11.4%): Emotional/Expressive vs Functional/Classic**
+
+| Loading บวก | Loading ลบ |
+|---|---|
+| opt06, opt07 | opt01, opt02 |
+
+→ แยก emotional appeal ออกจาก functional design
+
+**PC1 หลัง Ipsatize:**
+- ลดจาก 31.7% → 15.1%
+- พิสูจน์ว่า Ipsatization ลด response style bias สำเร็จ
+- PC1 หลัง Ipsatize เป็น genuine preference signal ไม่ใช่ artifact
+
+---
+
+## สไลด์ 7 — K-Means: Model Selection
+
+**Input:** X_pca (148 × 8 components)
+
+**K-Means Evaluation (k=2–7):**
+
+| k | Silhouette | Davies-Bouldin | Inertia |
+|---|---|---|---|
+| **2** | **0.193** ⬆️ สูงสุด | 2.032 | 4,358.9 |
+| 3 | 0.132 | 2.095 | 3,894.6 |
+| 4 | 0.150 | 1.824 | 3,543.8 |
+| 5 | 0.151 | 1.780 | 3,311.9 |
+| 6 | 0.164 | 1.608 | 3,114.8 |
+| 7 | 0.138 | 1.767 | 2,985.8 |
+
+**เหตุผลที่เลือก k=2:**
+1. **Silhouette สูงสุด** (0.193) — cluster separation ดีที่สุด
+2. **k=4 มี cluster เล็ก n=23** — ไม่เสถียรเชิง business
+3. **k=3 มี overlap สูง** (Cophenetic r=0.473) — moderate structure only
+4. **2 segments ตีความเชิงธุรกิจได้ชัดเจน**
+
+---
+
+## สไลด์ 8 — K-Means: Final Segments
+
+**Final: K=2 (Silhouette = 0.193)**
+
+| Segment | Persona | n | สัดส่วน |
+|---|---|---|---|
+| 0 | Premium Quality Seekers | **36** | **24.3%** |
+| 1 | Main Market | **112** | **75.7%** |
+
+**Vote Scores by Segment:**
+
+| Option | Segment 0 | Segment 1 |
+|---|---|---|
+| opt01 | 1.00 | 0.70 |
+| opt02 | 1.17 | 0.86 |
+| **opt03** | **2.00** | **1.60** ⬆️ ทั้งสองกลุ่มเลือก |
+| opt04 | 0.89 | 0.32 |
+| opt05 | 0.31 | 0.39 |
+| opt06 | 0.22 | 0.86 |
+| opt07 | 0.17 | 0.54 |
+| opt08 | 0.22 | 0.34 |
+| opt09 | 0.03 | 0.23 |
+| opt10 | 0.00 | 0.17 |
+
+> opt03 เป็นอันดับ 1 ทั้งสอง segment (แต่ Segment 0 ให้คะแนนสูงกว่า: 2.00 vs 1.60)
+
+---
+
+## สไลด์ 9 — Hierarchical Clustering (Validation + Limitation)
+
+**Method:**
+- Linkage: Ward
+- Distance: Euclidean
+- Input: X_pca (148 × 8)
+
+**ผลลัพธ์:**
+```
+Cophenetic Correlation r = 0.473 (moderate)
+```
+
+**ตีความ:**
+- โครงสร้างกลุ่มมีอยู่จริง แต่มี **overlap ระหว่างกลุ่ม**
+- r < 0.7 → hierarchical structure **ไม่ชัดเจน**
+- ใช้สำหรับ **cross-check เท่านั้น** ไม่ได้ยืนยัน k=2 อย่างสมบูรณ์
+
+**ความหมายสำหรับ survey data:**
+- Consumer preferences มักมี overlap ตามธรรมชาติ
+- ไม่ควรตีความว่า segments แยกขาดกัน 100%
+
+> ⚠️ **Limitation:** ต้องใช้ segment labels ร่วมกับ business context ไม่ใช่แค่ cluster assignment อย่างเดียว
+
+---
+
+## สไลด์ 10 — Isolation Forest (Anomaly Detection)
+
+**Input:** X_pca + buy factors + packaging importance + demographic + votes (~36 features)
+
+**Parameter:** contamination = auto
+
+**ผลลัพธ์:**
+
+| Metric | Value |
+|---|---|
+| **Total anomalies** | **26 คน (17.6%)** |
+| Segment 1 (Premium) | 19.4% |
+| Segment 2 (Main Market) | 17.0% |
+
+**จุดสำคัญ:**
+- Segment 1 มี anomaly rate สูง (19.4%) → พฤติกรรมตอบกระจัดกระจาย
+- Segment 2 คล้ายกัน (17.0%)
+- **ต้องระวังตอนตีความ persona** — มีคนที่ไม่ fit ใน cluster
+
+**Action:**
+- กรอง anomaly ออกก่อน train supervised model ทุกครั้ง
+- คง anomaly_flag ไว้ใน dataset สำหรับ analysis
+
+---
+
+## สไลด์ 11 — Customer Segments (Persona Snapshot)
+
+**Segment 0 — Premium Quality Seekers (n=36, 24.3%)**
+
+| ข้อมูล | ค่า |
+|---|---|
+| Profile | หญิง 30–39 ปี, โสดไม่มีแฟน |
+| Top Options | opt03 (4.31) > opt04 (3.96) > opt02 (3.64) |
+| Buy Drivers | รสชาติ (4.61) > แบรนด์ดัง (4.50) > ธรรมชาติ (4.31) |
+| Brand Sensitivity | **สูง** |
+| Strategy | Premium messaging — รสชาติ ธรรมชาติ แบรนด์ดัง สัญลักษณ์บอกประโยชน์ |
+
+---
+
+**Segment 1 — Main Market (n=112, 75.7%)**
+
+| ข้อมูล | ค่า |
+|---|---|
+| Profile | หญิง 30–39 ปี, แต่งงานแล้ว |
+| Top Options | opt03 (3.62) > opt06 (3.43) > opt07 (3.39) |
+| Buy Drivers | รสชาติ (4.38) > ธรรมชาติ (4.25) > แบรนด์ (3.92) |
+| Brand Sensitivity | **ปานกลาง** |
+| Strategy | Value messaging — คุ้มค่า น่าเชื่อถือ ข้อมูลชัดเจน |
+
+---
+
+> **รสชาติเป็นอันดับ 1 ทั้งสองกลุ่ม** แต่ Segment 0 ให้ความสำคัญกับแบรนด์มากกว่า
+
+---
+
+## สไลด์ 12 — Role of Unsupervised in Whole System
+
+**System Pipeline:**
+
+```
+Raw Survey Data (167 rows)
+        │
+        ▼
+[Data Preparation]
+Ipsatize + Encode + KNN Impute
+        │
+        ▼
+[UNSUPERVISED LEARNING]
+        │
+   ┌────┴─────────────────┐
+   ▼                      ▼
+PCA + K-Means       Isolation Forest
+(8 components)      (26 anomalies)
+   │                      │
+   ▼                      ▼
+Segment Labels     Anomaly Flags
+(0/1)              (0/1)
+   │                      │
+   └──────┬───────────────┘
+          ▼
+clean_dataset_with_segments.csv
+(148 rows + segment + anomaly_flag)
+          │
+          ▼
+   [SUPERVISED]         [DASHBOARD]
+   train classifier     visualize insights
+```
+
+**3 Output หลักจาก Unsupervised:**
+
+| Output | ไฟล์ | ใช้โดย |
+|---|---|---|
+| Segment labels | clean_dataset_with_segments.csv | Supervised, Dashboard |
+| Anomaly flags | clean_dataset_with_segments.csv | Dashboard (filter) |
+| Segment profiles | segment_profiles.csv | Dashboard (persona cards) |
+
+---
+
+## Summary: Key Numbers
+
+| Metric | Value |
+|---|---|
+| n (valid) | 148 |
+| K (clusters) | 2 |
+| Silhouette Score | 0.193 |
+| Cophenetic r | 0.473 (moderate) |
+| Total Variance (8 PCs) | 68.6% |
+| Anomalies | 26 (17.6%) |
+| Top Option | **opt03 (251 pts)** |
+
+> Unsupervised เป็น **ฐาน** ให้ Supervised และ Dashboard — ไม่ใช่แค่ standalone analysis
