@@ -43,7 +43,7 @@ except Exception:
 dash_app.layout = html.Div(
     [
         html.H1(
-            "🐱 Cat Food Packaging Survey — Unsupervised Learning",
+            "Cat Food Packaging Survey — Unsupervised Learning",
             className="text-center my-4",
         ),
         dbc.Container(
