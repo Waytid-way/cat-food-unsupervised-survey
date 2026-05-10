@@ -1,7 +1,8 @@
-import json
 from pathlib import Path
 
-OUTPUT_DIR = Path("C:/Users/COM/Projects/Cat-food Unsupervised/outputs")
+from catfood_unsupervised.config import PROJECT_ROOT
+
+OUTPUT_DIR = PROJECT_ROOT / "outputs"
 
 def test_load_metrics_summary():
     from catfood_unsupervised.dashboard.data_loader import load_metrics_summary

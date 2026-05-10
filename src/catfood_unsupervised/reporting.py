@@ -7,6 +7,7 @@ from typing import Any
 
 import pandas as pd
 
+from catfood_unsupervised.pipeline import run_pipeline
 from catfood_unsupervised.preprocessing import THAI_LIKERT_SCALE, map_series_values
 
 
@@ -284,6 +285,25 @@ def write_reports_from_output_dir(
         render_owner_memo(context), encoding="utf-8"
     )
     return outputs
+
+
+def run_unsupervised_workflow(
+    *,
+    data_path: str | Path,
+    output_dir: str | Path,
+    report_dir: str | Path,
+    **pipeline_kwargs: Any,
+) -> dict[str, Any]:
+    pipeline_result = run_pipeline(
+        data_path=data_path,
+        output_dir=output_dir,
+        **pipeline_kwargs,
+    )
+    report_paths = write_reports_from_output_dir(output_dir, report_dir)
+    return {
+        "pipeline": pipeline_result,
+        "report_paths": report_paths,
+    }
 
 
 def _count_rows(variable_label: str, series: pd.Series) -> list[list[str]]:

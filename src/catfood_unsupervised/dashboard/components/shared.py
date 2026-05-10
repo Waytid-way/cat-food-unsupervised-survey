@@ -2,8 +2,9 @@ from __future__ import annotations
 
 from typing import Any
 
-import dash_bootstrap_components as dbc
 from dash import html
+
+from catfood_unsupervised.dashboard.bootstrap import dbc
 
 
 def render_summary_stats(metrics: dict) -> dbc.Row:

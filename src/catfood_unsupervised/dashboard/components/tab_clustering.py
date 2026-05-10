@@ -2,13 +2,13 @@ from __future__ import annotations
 
 from typing import Any
 
-import dash_bootstrap_components as dbc
 import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 import scipy.cluster.hierarchy as sch
 from dash import dcc, dash_table as dt, html
 
+from catfood_unsupervised.dashboard.bootstrap import dbc
 from catfood_unsupervised.dashboard.data_loader import DashboardData
 
 

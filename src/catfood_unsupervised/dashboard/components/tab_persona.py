@@ -1,12 +1,14 @@
 from __future__ import annotations
 
-import dash_bootstrap_components as dbc
+import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 from dash import dcc, html
 
+from catfood_unsupervised.dashboard.bootstrap import dbc
 from catfood_unsupervised.dashboard.components.shared import segment_color_map
 from catfood_unsupervised.dashboard.data_loader import DashboardData
+from catfood_unsupervised.preprocessing import THAI_LIKERT_SCALE, map_series_values
 
 
 SEGMENT_STRATEGIES = {
@@ -93,7 +95,13 @@ def render_persona_tab(data: DashboardData) -> html.Div:
         marital_fig.update_layout(title="Marital", height=200, margin=dict(t=30, b=30))
 
         buy_labels = ["Buy Factor 1", "Buy Factor 2", "Buy Factor 3", "Buy Factor 4", "Buy Factor 5"]
-        buy_means = [seg_df[clean_df.columns[5+i]].astype(float).mean() for i in range(5)]
+        buy_means = [
+            pd.to_numeric(
+                map_series_values(seg_df[clean_df.columns[5 + i]], THAI_LIKERT_SCALE, default=pd.NA),
+                errors="coerce",
+            ).mean()
+            for i in range(5)
+        ]
 
         buy_fig = go.Figure(data=[go.Bar(
             x=buy_labels,

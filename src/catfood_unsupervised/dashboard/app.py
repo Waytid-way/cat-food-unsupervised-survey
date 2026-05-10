@@ -4,7 +4,6 @@ import os
 from pathlib import Path
 
 import dash
-import dash_bootstrap_components as dbc
 from dash import dcc, html
 from flask import send_from_directory
 
@@ -13,6 +12,7 @@ from catfood_unsupervised.dashboard.components.tab_eda import render_eda_tab
 from catfood_unsupervised.dashboard.components.tab_correlation import render_correlation_tab
 from catfood_unsupervised.dashboard.components.tab_clustering import render_clustering_tab
 from catfood_unsupervised.dashboard.components.tab_persona import render_persona_tab
+from catfood_unsupervised.dashboard.bootstrap import dbc
 from catfood_unsupervised.dashboard.config import TAB_ITEMS
 from catfood_unsupervised.dashboard.data_loader import load_all_data
 
@@ -62,7 +62,7 @@ dash_app.layout = html.Div(
             fluid=True,
         ),
     ],
-    style={"background": "#F8F9FA", "min-height": "100vh", "padding": "20px"},
+    style={"background": "#F8F9FA", "minHeight": "100vh", "padding": "20px"},
 )
 
 

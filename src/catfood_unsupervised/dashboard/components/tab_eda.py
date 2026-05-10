@@ -2,15 +2,15 @@ from __future__ import annotations
 
 import pandas as pd
 
-import dash_bootstrap_components as dbc
 import plotly.express as px
 import plotly.graph_objects as go
 from dash import dcc, html
 
+from catfood_unsupervised.dashboard.bootstrap import dbc
 from catfood_unsupervised.dashboard.data_loader import DashboardData
 
 
-def _render_top3_breakdown(clean_df: pd.DataFrame) -> dcc.Graph:
+def _build_top3_breakdown_figure(clean_df: pd.DataFrame) -> go.Figure:
     options = [f"Opt {i+1:02d}" for i in range(10)]
 
     fig = go.Figure()
@@ -36,10 +36,10 @@ def _render_top3_breakdown(clean_df: pd.DataFrame) -> dcc.Graph:
         plot_bgcolor="white",
         showlegend=True,
     )
-    return dcc.Graph(figure=fig)
+    return fig
 
 
-def _render_option_rating_heatmap(clean_df: pd.DataFrame) -> dcc.Graph:
+def _build_option_rating_heatmap_figure(clean_df: pd.DataFrame) -> go.Figure:
     opt_means = clean_df[[c for c in clean_df.columns if c.startswith("option_") and "_attribute_" in c]].mean()
 
     matrix = []
@@ -60,7 +60,7 @@ def _render_option_rating_heatmap(clean_df: pd.DataFrame) -> dcc.Graph:
         height=400,
         plot_bgcolor="white",
     )
-    return dcc.Graph(figure=fig)
+    return fig
 
 
 def render_eda_tab(data: DashboardData) -> html.Div:
@@ -152,9 +152,9 @@ def render_eda_tab(data: DashboardData) -> html.Div:
                 ],
             ),
             html.H5("Top-3 Ranking Breakdown", className="section-header mt-4"),
-            dbc.Row(dbc.Col(dcc.Graph(figure=_render_top3_breakdown(clean_df)), width=12)),
+            dbc.Row(dbc.Col(dcc.Graph(figure=_build_top3_breakdown_figure(clean_df)), width=12)),
             html.H5("Option Rating Distribution", className="section-header mt-4"),
-            dbc.Row(dbc.Col(dcc.Graph(figure=_render_option_rating_heatmap(clean_df)), width=12)),
+            dbc.Row(dbc.Col(dcc.Graph(figure=_build_option_rating_heatmap_figure(clean_df)), width=12)),
         ],
         id="tab_eda",
     )

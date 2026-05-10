@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-import dash_bootstrap_components as dbc
 import plotly.express as px
 from dash import dcc, html
 
+from catfood_unsupervised.dashboard.bootstrap import dbc
 from catfood_unsupervised.dashboard.data_loader import DashboardData
 
 

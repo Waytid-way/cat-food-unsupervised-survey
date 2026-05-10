@@ -10,8 +10,8 @@ SRC_DIR = PROJECT_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from catfood_unsupervised.config import OUTPUT_DIR, RAW_DATA_PATH
-from catfood_unsupervised.pipeline import run_pipeline
+from catfood_unsupervised.config import OUTPUT_DIR, RAW_DATA_PATH, REPORT_DIR
+from catfood_unsupervised.reporting import run_unsupervised_workflow
 
 
 def main() -> None:
@@ -31,6 +31,12 @@ def main() -> None:
         help="Directory for generated pipeline artifacts.",
     )
     parser.add_argument(
+        "--report-dir",
+        type=Path,
+        default=REPORT_DIR,
+        help="Directory for generated markdown reports.",
+    )
+    parser.add_argument(
         "--random-state",
         type=int,
         default=42,
@@ -38,14 +44,16 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    result = run_pipeline(
+    result = run_unsupervised_workflow(
         data_path=args.data_path,
         output_dir=args.output_dir,
+        report_dir=args.report_dir,
         random_state=args.random_state,
     )
     print(f"Wrote pipeline artifacts to {args.output_dir.resolve()}")
-    print(f"Final cluster key: {result['metrics']['final_cluster_key']}")
-    print(f"Final cluster k: {result['metrics']['final_cluster_k']}")
+    print(f"Wrote reports to {args.report_dir.resolve()}")
+    print(f"Final cluster key: {result['pipeline']['metrics']['final_cluster_key']}")
+    print(f"Final cluster k: {result['pipeline']['metrics']['final_cluster_k']}")
 
 
 if __name__ == "__main__":
