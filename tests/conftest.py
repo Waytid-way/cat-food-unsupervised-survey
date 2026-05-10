@@ -5,15 +5,23 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from catfood_unsupervised.supervised.schema import ANOMALY_COLUMN, TARGET_COLUMN
+from catfood_unsupervised.supervised.schema import (
+    ANOMALY_COLUMN,
+    FEATURE_COLUMNS,
+    LEAKAGE_COLUMNS,
+    TARGET_COLUMN,
+)
 
 
 @pytest.fixture()
 def supervised_fixture_path(tmp_path: Path) -> Path:
-    source_columns = pd.read_csv(
-        Path(__file__).resolve().parents[1] / "outputs" / "clean_dataset_with_segments.csv",
-        nrows=0,
-    ).columns.tolist()
+    source_columns = [
+        "Timestamp",
+        *FEATURE_COLUMNS,
+        TARGET_COLUMN,
+        ANOMALY_COLUMN,
+        *LEAKAGE_COLUMNS,
+    ]
     path = tmp_path / "supervised_fixture.csv"
 
     rows: list[dict[str, object]] = []
@@ -21,35 +29,15 @@ def supervised_fixture_path(tmp_path: Path) -> Path:
         is_segment_one = row_index < 6
         row = {column: f"value_{row_index}_{column}" for column in source_columns}
         row["Timestamp"] = f"2024-01-01 10:{row_index:02d}:00"
-        row["คุณสมบัติของอาหารแมวสำเร็จรูปชนิดเม็ดที่ส่งผลต่อการตัดสินใจซื้อ [ใช้วัตถุดิบจากธรรมชาติ]"] = (
-            "มากที่สุด" if is_segment_one else "น้อย"
-        )
-        row["คุณสมบัติของอาหารแมวสำเร็จรูปชนิดเม็ดที่ส่งผลต่อการตัดสินใจซื้อ [ใช้วัตถุดิบนำเข้าจากต่างประเทศ เช่น เนื้อปลาทูน่าจากญี่ปุ่น]"] = (
-            "มาก" if is_segment_one else "น้อย"
-        )
-        row["คุณสมบัติของอาหารแมวสำเร็จรูปชนิดเม็ดที่ส่งผลต่อการตัดสินใจซื้อ [รสชาติกลมกล่อมอร่อยถูกปากแมว เช่น เทไว้แล้วแมวกินหมดไม่เหลือ, หยิบถุงแล้วแมวรอกิน]"] = (
-            "มากที่สุด" if is_segment_one else "น้อย"
-        )
-        row["คุณสมบัติของอาหารแมวสำเร็จรูปชนิดเม็ดที่ส่งผลต่อการตัดสินใจซื้อ [เป็นผลิตภัณฑ์จากต่างประเทศ เช่น ญี่ปุ่น, อเมริกา]"] = (
-            "มาก" if is_segment_one else "น้อย"
-        )
-        row["คุณสมบัติของอาหารแมวสำเร็จรูปชนิดเม็ดที่ส่งผลต่อการตัดสินใจซื้อ [แบรนด์มีชื่อเสียงเป็นที่รู้จัก]"] = (
-            "มากที่สุด" if is_segment_one else "น้อย"
-        )
-        row["บรรจุภัณฑ์ (packaging) มีผลต่อการตัดสินใจซื้อใจหรือไม่"] = (
-            "มีผล" if is_segment_one else "ไม่มีผล"
-        )
-        row["สำหรับบรรจุภัณฑ์อาหารแมว คุณชอบภาพแบบใด"] = (
-            "ภาพแมว" if is_segment_one else "ภาพอาหารเม็ด"
-        )
-        for column in source_columns[12:20]:
+        row[FEATURE_COLUMNS[0]] = "มากที่สุด" if is_segment_one else "น้อย"
+        row[FEATURE_COLUMNS[1]] = "มาก" if is_segment_one else "น้อย"
+        row[FEATURE_COLUMNS[2]] = "มากที่สุด" if is_segment_one else "น้อย"
+        for column in FEATURE_COLUMNS[3:]:
             row[column] = "มาก" if is_segment_one else "น้อย"
         row["อายุของคุณ"] = "20-29ปี" if is_segment_one else "30-39ปี"
         row["เพศของคุณ"] = "หญิง" if is_segment_one else "ชาย"
-        row["สถานภาพสมรส"] = (
-            "โสด ยังไม่แต่งงาน" if is_segment_one else "แต่งงานแล้ว"
-        )
-        row["จากตัวเลือกทั้งหมด คุณชอบการออกแบบบรรจุภัณฑ์อาหารแมวสำเร็จรูปแบบใดมากที่สุด 3 อันดับแรก"] = (
+        row["สถานภาพสมรส"] = "โสด ยังไม่แต่งงาน" if is_segment_one else "แต่งงานแล้ว"
+        row["จากตัวเลือกทั้งหมด คุณชอบการออกแบบบรรจุภัณฑ์อาหารแมวแบบใดมากที่สุด 3 อันดับแรก"] = (
             "Option 3, Option 6, Option 8"
             if is_segment_one
             else "Option 1, Option 2, Option 4"

@@ -1,9 +1,5 @@
 from __future__ import annotations
 
-from pathlib import Path
-
-import pandas as pd
-
 from catfood_unsupervised.supervised.schema import (
     ANOMALY_COLUMN,
     FEATURE_COLUMNS,
@@ -13,18 +9,56 @@ from catfood_unsupervised.supervised.schema import (
 
 
 def test_supervised_schema_matches_current_cleaned_csv_contract():
-    header = pd.read_csv(
-        Path(__file__).resolve().parents[2] / "outputs" / "clean_dataset_with_segments.csv",
-        nrows=0,
-    ).columns.tolist()
-
-    expected_feature_columns = [*header[5:20], *header[73:76]]
-    expected_leakage_columns = [header[72], *header[76:97], header[99]]
+    expected_feature_columns = (
+        "คุณสมบัติของอาหารแมวสำเร็จรูปชนิดเม็ดที่ส่งผลต่อการตัดสินใจซื้อ [ใช้วัตถุดิบจากธรรมชาติ]",
+        "คุณสมบัติของอาหารแมวสำเร็จรูปชนิดเม็ดที่ส่งผลต่อการตัดสินใจซื้อ [ใช้วัตถุดิบนำเข้าจากต่างประเทศ เช่น เนื้อปลาทูน่าจากญี่ปุ่น]",
+        "คุณสมบัติของอาหารแมวสำเร็จรูปชนิดเม็ดที่ส่งผลต่อการตัดสินใจซื้อ [รสชาติกลมกล่อมอร่อยถูกปากแมว เช่น เทไว้แล้วแมวกินหมดไม่เหลือ, หยิบถุงแล้วแมวรอกิน]",
+        "คุณสมบัติของอาหารแมวสำเร็จรูปชนิดเม็ดที่ส่งผลต่อการตัดสินใจซื้อ [เป็นผลิตภัณฑ์จากต่างประเทศ เช่น ญี่ปุ่น, อเมริกา]",
+        "คุณสมบัติของอาหารแมวสำเร็จรูปชนิดเม็ดที่ส่งผลต่อการตัดสินใจซื้อ [แบรนด์มีชื่อเสียงเป็นที่รู้จัก]",
+        "บรรจุภัณฑ์ (packaging) มีผลต่อการตัดสินใจซื้อใจหรือไม่",
+        "สำหรับบรรจุภัณฑ์อาหารแมว คุณชอบภาพแบบใด",
+        "บรรจุภัณฑ์ของอาหารแมวสำเร็จรูปชนิดเม็ดที่ส่งผลต่อการตัดสินใจซื้อ [บรรจุภัณฑ์ดูดีพรีเมียม]",
+        "บรรจุภัณฑ์ของอาหารแมวสำเร็จรูปชนิดเม็ดที่ส่งผลต่อการตัดสินใจซื้อ [บรรจุภัณฑ์มีภาพแมว]",
+        "บรรจุภัณฑ์ของอาหารแมวสำเร็จรูปชนิดเม็ดที่ส่งผลต่อการตัดสินใจซื้อ [บรรจุภัณฑ์มีภาพอาหารเม็ด รูปทรงของอาหารเม็ดจริงให้เห็น]",
+        "บรรจุภัณฑ์ของอาหารแมวสำเร็จรูปชนิดเม็ดที่ส่งผลต่อการตัดสินใจซื้อ [บรรจุภัณฑ์มีภาพวัตถุดิบและส่วนผสมจริงให้เห็น]",
+        "บรรจุภัณฑ์ของอาหารแมวสำเร็จรูปชนิดเม็ดที่ส่งผลต่อการตัดสินใจซื้อ [บรรจุภัณฑ์เป็นมิตรต่อสิ่งแวดล้อม]",
+        "บรรจุภัณฑ์ของอาหารแมวสำเร็จรูปชนิดเม็ดที่ส่งผลต่อการตัดสินใจซื้อ [มีสัญลักษณ์สื่อถึงแหล่งผลิตหรือที่มา เช่น นำเข้าจากประเทศx]",
+        "บรรจุภัณฑ์ของอาหารแมวสำเร็จรูปชนิดเม็ดที่ส่งผลต่อการตัดสินใจซื้อ [มีสัญลักษณ์์สื่อถึงประโยชน์หรือฟังก์ชั่น เช่น ช่วยลดก้อนขน]",
+        "บรรจุภัณฑ์ของอาหารแมวสำเร็จรูปชนิดเม็ดที่ส่งผลต่อการตัดสินใจซื้อ [มีการการันตี เช่น ได้รับรางวัล, ยอดขายอันดับ 1]",
+        "อายุของคุณ",
+        "เพศของคุณ",
+        "สถานภาพสมรส",
+    )
+    expected_leakage_columns = (
+        "จากตัวเลือกทั้งหมด คุณชอบการออกแบบบรรจุภัณฑ์อาหารแมวสำเร็จรูปแบบใดมากที่สุด 3 อันดับแรก",
+        "top3_rank_1",
+        "top3_rank_2",
+        "top3_rank_3",
+        "vote_01",
+        "vote_02",
+        "vote_03",
+        "vote_04",
+        "vote_05",
+        "vote_06",
+        "vote_07",
+        "vote_08",
+        "vote_09",
+        "vote_10",
+        "PC1",
+        "PC2",
+        "PC3",
+        "PC4",
+        "PC5",
+        "PC6",
+        "PC7",
+        "PC8",
+        "anomaly_score",
+    )
 
     assert TARGET_COLUMN == "segment"
     assert ANOMALY_COLUMN == "anomaly_flag"
-    assert list(FEATURE_COLUMNS) == expected_feature_columns
-    assert list(LEAKAGE_COLUMNS) == expected_leakage_columns
+    assert FEATURE_COLUMNS == expected_feature_columns
+    assert LEAKAGE_COLUMNS == expected_leakage_columns
     assert set(FEATURE_COLUMNS).isdisjoint(LEAKAGE_COLUMNS)
     assert TARGET_COLUMN not in FEATURE_COLUMNS
     assert ANOMALY_COLUMN not in FEATURE_COLUMNS
