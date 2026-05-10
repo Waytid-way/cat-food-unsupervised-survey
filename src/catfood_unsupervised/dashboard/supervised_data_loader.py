@@ -6,6 +6,11 @@ from pathlib import Path
 
 import pandas as pd
 
+from catfood_unsupervised.dashboard.config import (
+    SUPERVISED_HISTORY_DB_PATH,
+    SUPERVISED_MODEL_PATH,
+)
+
 
 @dataclass(frozen=True)
 class SupervisedDashboardBundle:
@@ -14,6 +19,8 @@ class SupervisedDashboardBundle:
     confusion_matrix: pd.DataFrame
     feature_importance: pd.DataFrame
     predictions: pd.DataFrame
+    model_path: Path
+    history_db_path: Path
 
 
 def load_supervised_dashboard_bundle(output_dir: str | Path) -> SupervisedDashboardBundle:
@@ -36,6 +43,8 @@ def load_supervised_dashboard_bundle(output_dir: str | Path) -> SupervisedDashbo
         confusion_matrix=pd.read_csv(confusion_path, index_col=0),
         feature_importance=pd.read_csv(feature_importance_path),
         predictions=pd.read_csv(predictions_path),
+        model_path=base / SUPERVISED_MODEL_PATH.name,
+        history_db_path=base / SUPERVISED_HISTORY_DB_PATH.name,
     )
 
 

@@ -9,39 +9,39 @@ from sklearn.metrics import auc, roc_curve
 from sklearn.preprocessing import label_binarize
 
 from catfood_unsupervised.dashboard.bootstrap import dbc
+from catfood_unsupervised.dashboard.components.supervised_form import (
+    render_supervised_form,
+)
+from catfood_unsupervised.dashboard.components.supervised_results import (
+    render_prediction_result_panel,
+    render_recent_history_panel,
+)
 from catfood_unsupervised.dashboard.supervised_data_loader import (
     SupervisedDashboardBundle,
 )
 
 
-def render_supervised_tab(bundle: SupervisedDashboardBundle) -> html.Div:
+def render_supervised_tab(
+    bundle: SupervisedDashboardBundle,
+    recent_history: pd.DataFrame | None = None,
+) -> html.Div:
     metrics = bundle.metrics
     comparison = bundle.comparison
     confusion_matrix = bundle.confusion_matrix
     feature_importance = bundle.feature_importance
     predictions = bundle.predictions
     class_labels = _extract_class_labels(metrics, predictions)
-    insight = _build_strategic_insight(metrics, feature_importance)
 
     hero = html.Div(
         [
             html.Div("5. Supervised Learning", className="supervised-hero__eyebrow"),
             html.H3(
-                "Predict the segment for a new customer, then turn it into a campaign decision",
+                "Score a new customer row, then inspect the result and usage trail",
                 className="supervised-hero__title",
             ),
             html.P(
-                "We train on the cleaned survey data to predict the unsupervised segment label and expose the result as a decision-ready dashboard.",
+                "The supervised model takes the canonical survey columns, predicts the segment, and stores each run in SQLite so business users can see how the tool is being used.",
                 className="supervised-hero__lede",
-            ),
-            html.Div(
-                [
-                    _pill("Best model", metrics["best_model_name"]),
-                    _pill("Accuracy", f"{metrics['best_model_accuracy']:.3f}"),
-                    _pill("Macro F1", f"{metrics['best_model_macro_f1']:.3f}"),
-                    _pill("Weighted F1", f"{metrics['best_model_weighted_f1']:.3f}"),
-                ],
-                className="supervised-pill-row",
             ),
         ],
         className="supervised-hero",
@@ -55,146 +55,112 @@ def render_supervised_tab(bundle: SupervisedDashboardBundle) -> html.Div:
         },
     )
 
-    insight_row = dbc.Row(
+    performance_strip = dbc.Row(
+        [
+            dbc.Col(_metric_card("Best Model", metrics["best_model_name"], "#2E86AB"), width=3),
+            dbc.Col(_metric_card("Accuracy", f"{metrics['best_model_accuracy']:.3f}", "#2E86AB"), width=3),
+            dbc.Col(_metric_card("Macro F1", f"{metrics['best_model_macro_f1']:.3f}", "#A23B72"), width=3),
+            dbc.Col(_metric_card("Weighted F1", f"{metrics['best_model_weighted_f1']:.3f}", "#3A7D44"), width=3),
+        ],
+        className="g-3 mb-4",
+    )
+
+    main_workflow = dbc.Row(
         [
             dbc.Col(
-                html.Div(
-                    [
-                        html.Div("Strategic insight", className="supervised-insight__label"),
-                        html.H5(insight["headline"], className="supervised-insight__headline"),
-                        html.P(insight["summary"], className="supervised-insight__text"),
-                        html.Div(
-                            [
-                                _pill("Top driver", insight["top_driver"]),
-                                _pill("Next signal", insight["second_driver"]),
-                                _pill("Action", insight["action"]),
-                            ],
-                            className="supervised-pill-row supervised-pill-row--tight",
-                        ),
-                    ],
-                    className="supervised-insight-card",
-                    style={
-                        "height": "100%",
-                        "padding": "1.2rem 1.25rem",
-                        "borderLeft": "6px solid #2E86AB",
-                        "borderRadius": "22px",
-                        "border": "1px solid rgba(15, 23, 42, 0.08)",
-                        "background": "linear-gradient(180deg, #FFFFFF 0%, #F8FBFE 100%)",
-                        "boxShadow": "0 12px 28px rgba(15, 23, 42, 0.06)",
-                    },
+                dbc.Card(
+                    dbc.CardBody([render_supervised_form()]),
+                    className="supervised-panel h-100",
                 ),
-                width=8,
+                width=7,
             ),
             dbc.Col(
-                html.Div(
-                    [
-                        html.Div("Decision cue", className="supervised-insight__label"),
-                        html.H5("How to use this result", className="supervised-insight__headline"),
-                        html.Ul(
-                            [
-                                html.Li("Use the best model score as the source of truth for the dashboard."),
-                                html.Li("Treat packaging imagery and proof cues as the first creative lever."),
-                                html.Li("Use age and household context to tune message tone, not to replace the packaging story."),
-                            ],
-                            className="supervised-list",
-                        ),
-                    ],
-                    className="supervised-forecast-card",
-                    style={
-                        "height": "100%",
-                        "padding": "1.2rem 1.25rem",
-                        "borderLeft": "6px solid #F18F01",
-                        "borderRadius": "22px",
-                        "border": "1px solid rgba(15, 23, 42, 0.08)",
-                        "background": "linear-gradient(180deg, #FFFFFF 0%, #FCF8F1 100%)",
-                        "boxShadow": "0 12px 28px rgba(15, 23, 42, 0.06)",
-                    },
+                dbc.Card(
+                    dbc.CardBody(
+                        [
+                            html.Div(id="supervised-error-panel"),
+                            html.Div(
+                                render_prediction_result_panel(None, metrics),
+                                id="supervised-result-panel",
+                            ),
+                            html.Div(
+                                render_recent_history_panel(recent_history),
+                                id="supervised-history-panel",
+                            ),
+                        ]
+                    ),
+                    className="supervised-panel h-100",
                 ),
-                width=4,
+                width=5,
             ),
         ],
         className="g-3 mb-4",
     )
 
-    comparison_fig = _build_model_comparison_figure(comparison, metrics["best_model_name"])
-    confusion_fig = _build_confusion_matrix_figure(confusion_matrix)
-    feature_fig = _build_feature_importance_figure(feature_importance)
-    roc_fig = _build_roc_figure(predictions, class_labels)
+    insight_row = dbc.Row(
+        [
+            dbc.Col(
+                dbc.Card(
+                    dbc.CardBody([html.Div("Model comparison"), dcc.Graph(figure=_build_model_comparison_figure(comparison, metrics["best_model_name"]), config=_graph_config())]),
+                    className="supervised-panel h-100",
+                ),
+                width=12,
+            )
+        ],
+        className="g-3 mb-4",
+    )
+
+    diagnostics_row = dbc.Row(
+        [
+            dbc.Col(
+                dbc.Card(
+                    dbc.CardBody([dcc.Graph(figure=_build_confusion_matrix_figure(confusion_matrix), config=_graph_config())]),
+                    className="supervised-panel h-100",
+                ),
+                width=6,
+            ),
+            dbc.Col(
+                dbc.Card(
+                    dbc.CardBody([dcc.Graph(figure=_build_feature_importance_figure(feature_importance), config=_graph_config())]),
+                    className="supervised-panel h-100",
+                ),
+                width=6,
+            ),
+        ],
+        className="g-3 mb-4",
+    )
+
+    roc_row = dbc.Row(
+        [
+            dbc.Col(
+                dbc.Card(
+                    dbc.CardBody([dcc.Graph(figure=_build_roc_figure(predictions, class_labels), config=_graph_config())]),
+                    className="supervised-panel h-100",
+                ),
+                width=12,
+            )
+        ],
+        className="g-3 mb-4",
+    )
 
     return html.Div(
         [
             hero,
+            performance_strip,
+            main_workflow,
+            html.Div(
+                [
+                    html.Div("Supervised diagnostics", className="supervised-panel__title"),
+                    html.P(
+                        "These training-time charts stay available for deeper validation, but the form and result workflow stays visually separate.",
+                        className="supervised-panel__lede",
+                    ),
+                ],
+                className="mb-2",
+            ),
             insight_row,
-            dbc.Row(
-                [
-                    dbc.Col(_metric_card("Best Model", metrics["best_model_name"], "#2E86AB"), width=3),
-                    dbc.Col(_metric_card("Accuracy", f"{metrics['best_model_accuracy']:.3f}", "#2E86AB"), width=3),
-                    dbc.Col(_metric_card("Macro F1", f"{metrics['best_model_macro_f1']:.3f}", "#A23B72"), width=3),
-                    dbc.Col(_metric_card("Weighted F1", f"{metrics['best_model_weighted_f1']:.3f}", "#3A7D44"), width=3),
-                ],
-                className="g-3 mb-4",
-            ),
-            dbc.Card(
-                dbc.CardBody([dcc.Graph(figure=comparison_fig, config=_graph_config())]),
-                className="supervised-panel mb-4",
-                style={
-                    "borderRadius": "22px",
-                    "border": "1px solid rgba(15, 23, 42, 0.08)",
-                    "boxShadow": "0 12px 28px rgba(15, 23, 42, 0.06)",
-                    "background": "#FFFFFF",
-                },
-            ),
-            dbc.Row(
-                [
-                    dbc.Col(
-                        dbc.Card(
-                            dbc.CardBody([dcc.Graph(figure=confusion_fig, config=_graph_config())]),
-                            className="supervised-panel h-100",
-                            style={
-                                "borderRadius": "22px",
-                                "border": "1px solid rgba(15, 23, 42, 0.08)",
-                                "boxShadow": "0 12px 28px rgba(15, 23, 42, 0.06)",
-                                "background": "#FFFFFF",
-                            },
-                        ),
-                        width=6,
-                    ),
-                    dbc.Col(
-                        dbc.Card(
-                            dbc.CardBody([dcc.Graph(figure=feature_fig, config=_graph_config())]),
-                            className="supervised-panel h-100",
-                            style={
-                                "borderRadius": "22px",
-                                "border": "1px solid rgba(15, 23, 42, 0.08)",
-                                "boxShadow": "0 12px 28px rgba(15, 23, 42, 0.06)",
-                                "background": "#FFFFFF",
-                            },
-                        ),
-                        width=6,
-                    ),
-                ],
-                className="g-3 mb-4",
-            ),
-            dbc.Card(
-                dbc.CardBody([_render_class_metrics_table(metrics)]),
-                className="supervised-panel mb-4",
-                style={
-                    "borderRadius": "22px",
-                    "border": "1px solid rgba(15, 23, 42, 0.08)",
-                    "boxShadow": "0 12px 28px rgba(15, 23, 42, 0.06)",
-                    "background": "#FFFFFF",
-                },
-            ),
-            dbc.Card(
-                dbc.CardBody([dcc.Graph(figure=roc_fig, config=_graph_config())]),
-                className="supervised-panel mb-3",
-                style={
-                    "borderRadius": "22px",
-                    "border": "1px solid rgba(15, 23, 42, 0.08)",
-                    "boxShadow": "0 12px 28px rgba(15, 23, 42, 0.06)",
-                    "background": "#FFFFFF",
-                },
-            ),
+            diagnostics_row,
+            roc_row,
         ],
         id="tab_supervised",
         className="supervised-shell",
@@ -215,27 +181,6 @@ def _metric_card(title: str, value: Any, accent: str):
             "borderRadius": "18px",
             "boxShadow": "0 10px 20px rgba(15, 23, 42, 0.06)",
             "borderTop": f"4px solid {accent}",
-        },
-    )
-
-
-def _pill(label: str, value: Any):
-    return html.Span(
-        [
-            html.Span(label, className="supervised-pill__label"),
-            html.Span(str(value), className="supervised-pill__value"),
-        ],
-        className="supervised-pill",
-        style={
-            "display": "inline-flex",
-            "alignItems": "center",
-            "gap": "0.45rem",
-            "padding": "0.45rem 0.8rem",
-            "borderRadius": "999px",
-            "background": "rgba(255, 255, 255, 0.82)",
-            "border": "1px solid rgba(15, 23, 42, 0.08)",
-            "boxShadow": "0 4px 10px rgba(15, 23, 42, 0.04)",
-            "color": "#102A43",
         },
     )
 
@@ -405,54 +350,6 @@ def _build_roc_figure(predictions: pd.DataFrame, class_labels: list[object]) -> 
     return fig
 
 
-def _render_class_metrics_table(metrics: dict[str, Any]) -> html.Div:
-    report = metrics.get("classification_report", {})
-    class_labels = metrics.get("class_labels", [])
-    rows = []
-    for label in class_labels:
-        label_key = str(label)
-        class_metrics = report.get(label_key)
-        if not isinstance(class_metrics, dict):
-            continue
-        rows.append(
-            html.Tr(
-                [
-                    html.Td(label_key),
-                    html.Td(f"{class_metrics.get('precision', 0):.3f}"),
-                    html.Td(f"{class_metrics.get('recall', 0):.3f}"),
-                    html.Td(f"{class_metrics.get('f1-score', 0):.3f}"),
-                    html.Td(str(int(class_metrics.get("support", 0)))),
-                ]
-            )
-        )
-
-    table = html.Table(
-        [
-            html.Thead(
-                html.Tr(
-                    [
-                        html.Th("Class"),
-                        html.Th("Precision"),
-                        html.Th("Recall"),
-                        html.Th("F1"),
-                        html.Th("Support"),
-                    ]
-                )
-            ),
-            html.Tbody(rows),
-        ],
-        className="table table-sm table-striped supervised-table",
-    )
-    return html.Div(
-        [
-            html.Div("Per-class metrics", className="supervised-panel__title"),
-            table,
-        ]
-        ,
-        style={"padding": "0.25rem 0.1rem 0.1rem"},
-    )
-
-
 def _extract_class_labels(metrics: dict[str, Any], predictions: pd.DataFrame) -> list[object]:
     class_labels = metrics.get("class_labels")
     if isinstance(class_labels, list) and class_labels:
@@ -462,38 +359,3 @@ def _extract_class_labels(metrics: dict[str, Any], predictions: pd.DataFrame) ->
         if column.startswith("prob_class_"):
             probability_labels.append(column.removeprefix("prob_class_"))
     return probability_labels
-
-
-def _build_strategic_insight(
-    metrics: dict[str, Any], feature_importance: pd.DataFrame
-) -> dict[str, str]:
-    top_features = feature_importance["feature"].head(3).tolist()
-    if top_features:
-        top_driver = _compact_label(top_features[0])
-        second_driver = _compact_label(top_features[1]) if len(top_features) > 1 else top_driver
-        third_driver = _compact_label(top_features[2]) if len(top_features) > 2 else second_driver
-    else:
-        top_driver = second_driver = third_driver = "n/a"
-
-    summary = (
-        f"{metrics['best_model_name']} leads the pack with {metrics['best_model_accuracy']:.3f} accuracy and "
-        f"{metrics['best_model_macro_f1']:.3f} macro F1. The strongest signals are {top_driver}, "
-        f"{second_driver}, and {third_driver}, which means packaging cues and stated preferences matter more "
-        f"than demographics alone."
-    )
-    return {
-        "headline": "Packaging imagery is the strongest signal, not demographics alone.",
-        "summary": summary,
-        "top_driver": top_driver,
-        "second_driver": second_driver,
-        "action": "Lead with packaging-led creative",
-    }
-
-
-def _compact_label(value: str, max_length: int = 42) -> str:
-    value = value.replace("บรรจุภัณฑ์ของอาหารแมวสำเร็จรูปชนิดเม็ดที่ส่งผลต่อการตัดสินใจซื้อ", "Packaging")
-    value = value.replace("คุณสมบัติของอาหารแมวสำเร็จรูปชนิดเม็ดที่ส่งผลต่อการตัดสินใจซื้อ", "Preference")
-    value = value.replace("บรรจุภัณฑ์ (packaging) มีผลต่อการตัดสินใจซื้อใจหรือไม่", "Packaging matters")
-    if len(value) <= max_length:
-        return value
-    return f"{value[: max_length - 1].rstrip()}…"

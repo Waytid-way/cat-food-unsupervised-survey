@@ -1,6 +1,13 @@
 from __future__ import annotations
 
-from catfood_unsupervised.supervised.config import DEFAULT_OUTPUT_DIR as SUPERVISED_OUTPUT_DIR
+from catfood_unsupervised.supervised.config import (
+    BEST_MODEL_FILENAME,
+    DEFAULT_OUTPUT_DIR as SUPERVISED_OUTPUT_DIR,
+)
+
+SUPERVISED_HISTORY_DB_FILENAME = "prediction_history.sqlite3"
+SUPERVISED_MODEL_PATH = SUPERVISED_OUTPUT_DIR / BEST_MODEL_FILENAME
+SUPERVISED_HISTORY_DB_PATH = SUPERVISED_OUTPUT_DIR / SUPERVISED_HISTORY_DB_FILENAME
 
 KPI_CARDS = [
     {
@@ -46,6 +53,7 @@ TAB_ITEMS = [
     {"label": "3. Clustering", "value": "tab_clustering", "href": "#tab_clustering"},
     {"label": "4. Persona", "value": "tab_persona", "href": "#tab_persona"},
     {"label": "5. Supervised", "value": "tab_supervised", "href": "#tab_supervised"},
+    {"label": "6. Business Insight", "value": "tab_business_insight", "href": "#tab_business_insight"},
 ]
 
 PALETTE = {
