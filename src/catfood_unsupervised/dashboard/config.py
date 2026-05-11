@@ -48,54 +48,12 @@ KPI_CARDS = [
 ]
 
 TAB_ITEMS = [
-    {
-        "label": "1. EDA & Stats",
-        "value": "tab_eda",
-        "href": "#tab_eda",
-        "icon": "ph ph-squares-four",
-        "description": "Survey overview and response structure",
-        "section": "home",
-    },
-    {
-        "label": "2. Correlation",
-        "value": "tab_correlation",
-        "href": "#tab_correlation",
-        "icon": "ph ph-chart-scatter",
-        "description": "Option relationships and preference clusters",
-        "section": "home",
-    },
-    {
-        "label": "3. Clustering",
-        "value": "tab_clustering",
-        "href": "#tab_clustering",
-        "icon": "ph ph-chart-line-up",
-        "description": "PCA, K-Means, and cluster evaluation",
-        "section": "analysis",
-    },
-    {
-        "label": "4. Persona",
-        "value": "tab_persona",
-        "href": "#tab_persona",
-        "icon": "ph ph-users",
-        "description": "Segment profile deep-dive",
-        "section": "analysis",
-    },
-    {
-        "label": "5. Supervised",
-        "value": "tab_supervised",
-        "href": "#tab_supervised",
-        "icon": "ph ph-robot",
-        "description": "Prediction workflow and model validation",
-        "section": "modeling",
-    },
-    {
-        "label": "6. Business Insight",
-        "value": "tab_business_insight",
-        "href": "#tab_business_insight",
-        "icon": "ph ph-briefcase",
-        "description": "Decision summary and usage history",
-        "section": "insight",
-    },
+    {"label": "1. EDA & Stats", "value": "tab_eda", "href": "#tab_eda", "icon": "ph ph-squares-four", "description": "Survey overview and response structure", "section": "home"},
+    {"label": "2. Correlation", "value": "tab_correlation", "href": "#tab_correlation", "icon": "ph ph-chart-scatter", "description": "Option relationships and preference clusters", "section": "home"},
+    {"label": "3. Clustering", "value": "tab_clustering", "href": "#tab_clustering", "icon": "ph ph-chart-line-up", "description": "PCA, K-Means, and cluster evaluation", "section": "analysis"},
+    {"label": "4. Persona", "value": "tab_persona", "href": "#tab_persona", "icon": "ph ph-users", "description": "Segment profile deep-dive", "section": "analysis"},
+    {"label": "5. Supervised", "value": "tab_supervised", "href": "#tab_supervised", "icon": "ph ph-robot", "description": "Prediction workflow and model validation", "section": "modeling"},
+    {"label": "6. Business Insight", "value": "tab_business_insight", "href": "#tab_business_insight", "icon": "ph ph-briefcase", "description": "Decision summary and usage history", "section": "insight"},
 ]
 
 PALETTE = {
@@ -110,9 +68,3 @@ PALETTE = {
     "background": "#F8F9FA",
     "card_bg": "#FFFFFF",
 }
-
-CORRELATION_CLUSTERS = [
-    {"name": "Classic/Safe", "options": ["opt01", "opt02"], "color": "#2E86AB"},
-    {"name": "Mainstream", "options": ["opt03", "opt04", "opt05"], "color": "#F18F01"},
-    {"name": "Niche Aesthetic", "options": ["opt08", "opt09", "opt10"], "color": "#A23B72"},
-]

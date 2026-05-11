@@ -27,6 +27,6 @@ def test_compatibility_modules_re_export_current_public_apis():
     assert callable(compat_supervised.predict_supervised_segment)
     assert hasattr(compat_supervised, "FEATURE_COLUMNS")
     assert hasattr(compat_dashboard, "dash_app")
-    assert callable(compat_dashboard.render_tab_content)
-    assert callable(compat_dashboard.render_dashboard_shell)
+    assert hasattr(compat_dashboard, "load_all_data")
+    assert hasattr(compat_dashboard, "load_supervised_dashboard_bundle")
     assert hasattr(compat_bootstrap, "dbc")

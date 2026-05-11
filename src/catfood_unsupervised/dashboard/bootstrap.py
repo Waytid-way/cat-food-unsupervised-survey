@@ -5,9 +5,9 @@ from typing import Any
 
 from dash import html
 
-try:  # pragma: no cover - exercised indirectly when dependency is installed
-    import dash_bootstrap_components as dbc  # type: ignore
-except ModuleNotFoundError:  # pragma: no cover - exercised in this workspace
+try:
+    import dash_bootstrap_components as dbc
+except ModuleNotFoundError:
     class _ThemeNamespace(SimpleNamespace):
         BOOTSTRAP = "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
 
@@ -24,9 +24,7 @@ except ModuleNotFoundError:  # pragma: no cover - exercised in this workspace
 
             if tag == "Container":
                 fluid = kwargs.pop("fluid", False)
-                class_name = _merge_class_name(
-                    class_name, "container-fluid" if fluid else "container"
-                )
+                class_name = _merge_class_name(class_name, "container-fluid" if fluid else "container")
             elif tag == "Row":
                 class_name = _merge_class_name(class_name, "row")
             elif tag == "Col":
@@ -40,16 +38,11 @@ except ModuleNotFoundError:  # pragma: no cover - exercised in this workspace
             elif tag == "Alert":
                 class_name = _merge_class_name(class_name, "alert")
 
-            return html.Div(
-                children,
-                id=component_id,
-                className=class_name,
-                style=style,
-            )
+            return html.Div(children, id=component_id, className=class_name, style=style)
 
         return factory
 
-    dbc = SimpleNamespace(  # type: ignore[assignment]
+    dbc = SimpleNamespace(
         themes=_ThemeNamespace(),
         Row=_wrap("Row"),
         Col=_wrap("Col"),

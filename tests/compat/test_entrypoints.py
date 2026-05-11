@@ -17,6 +17,6 @@ def test_dashboard_module_entrypoint_imports_canonical_and_compat_paths():
     canonical_dashboard_app = import_module("catfood_unsupervised.dashboard.app")
     compat_dashboard = import_module("catfood_unsupervised.compat.dashboard")
 
-    assert canonical_dashboard_main.app.title == "Cat Food ML Dashboard"
-    assert canonical_dashboard_app.dash_app.title == "Cat Food ML Dashboard"
-    assert compat_dashboard.dash_app.title == "Cat Food ML Dashboard"
+    assert canonical_dashboard_main.app.title == "CatFood ML Dashboard"
+    assert canonical_dashboard_app.dash_app.title == "CatFood ML Dashboard"
+    assert compat_dashboard.dash_app.title == "CatFood ML Dashboard"
