@@ -11,6 +11,21 @@
   - RBF SVM
 - Writes model artifacts and Thai-language reports for business review.
 
+## Dashboard shell
+
+The Dash app now uses a left-hand application shell instead of a plain page wrapper.
+
+- Entry point: `src/catfood_unsupervised/dashboard/app.py`
+- Shell component: `src/catfood_unsupervised/dashboard/components/shell.py`
+- Top navigation order:
+  - EDA & Stats
+  - Correlation
+  - Clustering
+  - Persona
+  - Supervised
+  - Business Insight
+- The supervised and insight tabs still read the same model outputs and history store.
+
 ## How to run it
 
 ```bash
@@ -33,7 +48,7 @@ python scripts/run_supervised_pipeline.py
 
 ## Dashboard check
 
-Open the dashboard and inspect the `Supervised` tab.
+Open the dashboard and inspect the shell first, then use the `Supervised` tab to confirm the scoring workflow still renders correctly.
 
 ## Key metrics to trust
 

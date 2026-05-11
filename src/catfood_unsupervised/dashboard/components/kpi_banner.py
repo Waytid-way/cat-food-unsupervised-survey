@@ -24,21 +24,16 @@ def render_kpi_banner(metrics: dict) -> html.Div:
             dbc.Card(
                 dbc.CardBody(
                     [
-                        html.H4(
-                            formatted,
-                            className="card-title text-center",
-                            style={"color": card_def["color"], "fontWeight": "bold"},
-                        ),
-                        html.P(card_def["label"], className="card-text text-center text-muted"),
+                        html.Div(formatted, className="dashboard-kpi-value", style={"color": card_def["color"]}),
+                        html.P(card_def["label"], className="dashboard-kpi-label text-center"),
                     ]
                 ),
-                className="text-center shadow-sm",
-                style={"background": "#FFFFFF", "borderRadius": "12px"},
+                className="text-center dashboard-kpi-card",
             ),
             width=2,
         )
         cards.append(card)
     return html.Div(
-        dbc.Row(cards, className="mb-4"),
-        style={"background": "#F8F9FA", "padding": "20px", "borderRadius": "8px"},
+        dbc.Row(cards, className="g-3"),
+        className="dashboard-kpi-banner",
     )
