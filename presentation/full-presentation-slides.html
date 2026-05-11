@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cat Food Packaging Survey - AI-Driven Marketing Campaign System</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&family=Noto+Sans+Thai:wght@400;700&display=swap');
+
+    :root {
+      --bg-dark: #0f1923;
+      --bg-light: #162030;
+      --bg-code: #1e2d3d;
+      --text-primary: #e0e6ed;
+      --text-secondary: #c8d4e0;
+      --text-muted: #7a8a9a;
+      --accent: #00d4aa;
+      --nav-dot: #3a4a5a;
+      --border: #2a3a4a;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Sarabun', 'Noto Sans Thai', sans-serif; background: var(--bg-dark); color: var(--text-primary); }
+    .slide { min-height: 100vh; padding: 4rem 2rem; display: flex; flex-direction: column; justify-content: center; }
+    .slide:nth-child(even) { background: var(--bg-light); }
+    .slide:nth-child(odd) { background: var(--bg-dark); }
+    .slide h1 { font-size: 2.5rem; color: var(--accent); margin-bottom: 1.5rem; }
+    .slide h2 { font-size: 1.8rem; color: var(--accent); margin-bottom: 1rem; }
+    .slide h2.subtitle { color: var(--text-secondary); font-size: 1.3rem; }
+    .slide p, .slide li { font-size: 1.1rem; line-height: 1.8; color: var(--text-secondary); }
+    .slide p.intro { margin-top: 2rem; font-size: 1rem; color: var(--text-muted); }
+    .slide ul { padding-left: 2rem; margin-bottom: 1rem; }
+    .slide li { margin-bottom: 0.5rem; }
+    .slide code { background: var(--bg-code); padding: 0.2rem 0.5rem; border-radius: 4px; color: var(--accent); }
+    .slide pre { background: var(--bg-code); padding: 1rem; border-radius: 8px; overflow-x: auto; margin-bottom: 1rem; }
+    .slide pre code { background: none; padding: 0; }
+    nav { position: fixed; right: 2rem; top: 50%; transform: translateY(-50%); z-index: 100; }
+    nav a { display: block; width: 12px; height: 12px; background: var(--nav-dot); margin: 8px; border-radius: 50%; transition: background 0.3s; }
+    nav a:hover, nav a.active { background: var(--accent); }
+    table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+    th, td { border: 1px solid var(--border); padding: 0.75rem; text-align: left; }
+    th { background: var(--bg-code); color: var(--accent); }
+
+    @media print {
+      .slide { min-height: auto; padding: 2rem 1rem; page-break-after: always; }
+      nav { display: none; }
+      body { background: white; color: black; }
+      .slide:nth-child(even), .slide:nth-child(odd) { background: white; }
+      .slide h1, .slide h2 { color: black; }
+      .slide p, .slide li { color: #333; }
+    }
+  </style>
+</head>
+<body>
+  <nav id="nav"></nav>
+
+  <section id="slide1" class="slide">
+    <h1>สำรวจบรรจุภัณฑ์อาหารแมว</h1>
+    <h2 class="subtitle">ระบบแคมเปญการตลาดด้วย AI สำหรับ EDA, การแบ่งกลุ่ม, การพยากรณ์ และการตัดสินใจทางธุรกิจ</h2>
+    <p class="intro">แปลงคำตอบแบบสำรวจเป็นกลุ่มลูกค้า → จากนั้นแปลงกลุ่มเป็นระบบให้คะแนนสำหรับการตลาด</p>
+  </section>
+
+  <section id="slide2" class="slide">
+    <h2>คำถามทางธุรกิจ</h2>
+    <ul>
+      <li>การออกแบบบรรจุภัณฑ์ใดเหมาะกับกลุ่มลูกค้าใด?</li>
+      <li>เราสามารถเปลี่ยนข้อมูลเชิงลึกจากแบบสำรวจเป็นระบบที่ให้คะแนนลูกค้าใหม่โดยอัตโนมัติได้หรือไม่?</li>
+    </ul>
+    <h2>สัญญาของระบบ</h2>
+    <ul>
+      <li>EDA บอกเราว่าข้อมูลมีลักษณะอย่างไร</li>
+      <li>Unsupervised learning ค้นหากลุ่มลูกค้าและความผิดปกติ</li>
+      <li>Supervised learning เปลี่ยนกลุ่มเหล่านั้นเป็นโมเดลพยากรณ์</li>
+      <li>ข้อมูลเชิงธุรกิจแปลงผลลัพธ์ของโมเดลเป็นการดำเนินการแคมเปญ</li>
+    </ul>
+    <h2>End-to-end flow</h2>
+    <pre><code>Raw survey -> EDA -> Unsupervised segmentation -> Supervised classifier -> Dashboard + business action</code></pre>
+  </section>
+
+  <section id="slide3" class="slide">
+    <h2>ภาพรวมข้อมูล</h2>
+    <ul>
+      <li><strong>แหล่งที่มา:</strong> ส่งออกจาก Google Form แบบสำรวจบรรจุภัณฑ์อาหารแมว</li>
+      <li><strong>แถวดิบที่โหลด:</strong> 167 แถว</li>
+      <li><strong>คำตอบ top-3 ที่สมบูรณ์ที่ใช้สำหรับการสร้างโมเดล:</strong> 148 คำตอบ</li>
+    </ul>
+    <h2>สิ่งที่อยู่ในแบบสำรวจ</h2>
+    <ul>
+      <li>ข้อมูลประชากร</li>
+      <li>ปัจจัยการซื้อ</li>
+      <li>ความสำคัญของบรรจุภัณฑ์</li>
+      <li>การให้คะแนนตัวเลือก 10 รูปแบบบรรจุภัณฑ์</li>
+    </ul>
+    <h2>Feature footprint</h2>
+    <ul>
+      <li>50 Likert rating columns</li>
+      <li>5 buy-factor columns</li>
+      <li>8 packaging-importance columns</li>
+      <li>5 demographic columns</li>
+    </ul>
+  </section>
+
+  <section id="slide4" class="slide">
+    <h2>EDA การทำความสะอาดข้อมูล</h2>
+    <p><strong>เหตุผลที่ขั้นตอนนี้สำคัญ:</strong> การส่งออก Google Form ดิบมีแถว metadata และคำตอบที่ไม่สมบูรณ์ เราต้องการเฉพาะผู้ตอบที่ทำ top-3 choice เสร็จสมบูรณ์</p>
+    <h2>กฎการทำความสะอาดหลัก</h2>
+    <ul>
+      <li>เลื่อนแถวหัวข้อที่ถูกต้องขึ้นมา</li>
+      <li>ลบแถวว่างที่ส่งออกมา</li>
+      <li>เก็บเฉพาะคำตอบ top-3 ที่สมบูรณ์</li>
+    </ul>
+    <h2>Code snippet</h2>
+    <pre><code>raw_df = load_raw_export(data_path)
+top3_column = raw_df.columns[TOP3_COLUMN_INDEX]
+completed_df = filter_completed_responses(raw_df, top3_column=top3_column)</code></pre>
+    <p><strong>ผลลัพธ์:</strong> 167 แถวดิบ → 148 คำตอบที่ถูกต้อง กลายเป็นฐานที่ใช้ร่วมกันสำหรับทั้ง unsupervised analysis และ supervised training</p>
+  </section>
+
+  <section id="slide5" class="slide">
+    <h2>ผลการค้นพบจาก EDA</h2>
+    <h3>Demographic snapshot</h3>
+    <ul>
+      <li><strong>เพศหญิง:</strong> 73.0%</li>
+      <li><strong>อายุ 30-39:</strong> 41.9%</li>
+      <li><strong>โสด/ไม่ได้แต่งงาน:</strong> 35.1%</li>
+    </ul>
+    <h3>ปัจจัยการซื้อ</h3>
+    <ul>
+      <li>รสชาติ: 4.43</li>
+      <li>ส่วนผสมธรรมชาติ: 4.26</li>
+      <li>ยี่ห้อดัง: 4.06</li>
+    </ul>
+    <h3>ตัวเลือกบรรจุภัณฑ์ยอดนิยม</h3>
+    <ul>
+      <li>opt03: 251</li>
+      <li>opt02: 138</li>
+      <li>opt01: 114</li>
+    </ul>
+    <h3>Correlation signal</h3>
+    <ul>
+      <li>opt03 - opt04: r = 0.625</li>
+      <li>opt01 - opt02: r = 0.568</li>
+      <li>opt05 - opt09: r = 0.635</li>
+    </ul>
+    <p><strong>การตีความ:</strong> opt03 เป็นผู้นำชัดเจน รสชาติและส่วนผสมธรรมชาติครองการตัดสินใจ ความชอบมีโครงสร้างไม่ใช่สุ่ม การแบ่งกลุ่มคุ้มค่า</p>
+  </section>
+
+  <script>
+    const slides = document.querySelectorAll('.slide');
+    slides.forEach((_, i) => {
+      const dot = document.createElement('a');
+      dot.href = '#slide' + (i + 1);
+      dot.title = 'Slide ' + (i + 1);
+      document.getElementById('nav').appendChild(dot);
+    });
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+          const id = entry.target.id;
+          document.querySelector('nav a[href="#' + id + '"]').classList.add('active');
+        }
+      });
+    }, { threshold: 0.5 });
+
+    slides.forEach(slide => observer.observe(slide));
+  </script>
+</body>
+</html>
