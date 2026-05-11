@@ -1,0 +1,424 @@
+# Instincts generated from https://github.com/Waytid-way/cat-food-unsupervised-survey
+# Generated: 2026-05-11T16:54:38.850Z
+# Version: 2.0
+# NOTE: This file supplements (does not replace) any existing curated instincts.
+# High-confidence manually curated instincts should be preserved alongside these.
+
+---
+id: cat-food-unsupervised-survey-commit-conventional
+trigger: "when writing a commit message"
+confidence: 0.85
+domain: git
+source: repo-analysis
+source_repo: https://github.com/Waytid-way/cat-food-unsupervised-survey
+---
+
+# Cat Food Unsupervised Survey Commit Conventional
+
+## Action
+
+Use conventional commit format with prefixes: feat
+
+## Evidence
+
+- 6 commits analyzed
+- Detected conventional commit pattern
+- Examples: feat(presentation): add HTML skeleton for full presentation with Thai content, feat(presentation): add slides 6-10 unsupervised section in Thai
+
+---
+id: cat-food-unsupervised-survey-commit-length
+trigger: "when writing a commit message"
+confidence: 0.6
+domain: git
+source: repo-analysis
+source_repo: https://github.com/Waytid-way/cat-food-unsupervised-survey
+---
+
+# Cat Food Unsupervised Survey Commit Length
+
+## Action
+
+Write moderate-length commit messages (~67 characters)
+
+## Evidence
+
+- Average commit message length: 67 chars
+- Based on 6 commits
+
+---
+id: cat-food-unsupervised-survey-naming-files
+trigger: "when creating a new file"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/Waytid-way/cat-food-unsupervised-survey
+---
+
+# Cat Food Unsupervised Survey Naming Files
+
+## Action
+
+Use snake_case naming convention
+
+## Evidence
+
+- Analyzed file naming patterns in repository
+- Dominant pattern: snake_case
+
+---
+id: cat-food-unsupervised-survey-import-relative
+trigger: "when importing modules"
+confidence: 0.75
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/Waytid-way/cat-food-unsupervised-survey
+---
+
+# Cat Food Unsupervised Survey Import Relative
+
+## Action
+
+Use relative imports for project files
+
+## Evidence
+
+- Import analysis shows relative import pattern
+- Example: import { x } from '../lib/x'
+
+---
+id: cat-food-unsupervised-survey-export-style
+trigger: "when exporting from a module"
+confidence: 0.7
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/Waytid-way/cat-food-unsupervised-survey
+---
+
+# Cat Food Unsupervised Survey Export Style
+
+## Action
+
+Prefer named exports
+
+## Evidence
+
+- Export pattern analysis
+- Dominant style: named
+
+---
+id: cat-food-unsupervised-survey-test-separate
+trigger: "when writing tests"
+confidence: 0.8
+domain: testing
+source: repo-analysis
+source_repo: https://github.com/Waytid-way/cat-food-unsupervised-survey
+---
+
+# Cat Food Unsupervised Survey Test Separate
+
+## Action
+
+Place tests in the tests/ or __tests__/ directory, mirroring src structure
+
+## Evidence
+
+- Separate test directory pattern detected
+- Tests live in dedicated test folders
+
+---
+id: cat-food-unsupervised-survey-test-naming
+trigger: "when creating a test file"
+confidence: 0.85
+domain: testing
+source: repo-analysis
+source_repo: https://github.com/Waytid-way/cat-food-unsupervised-survey
+---
+
+# Cat Food Unsupervised Survey Test Naming
+
+## Action
+
+Name test files using the pattern: *.test.ts
+
+## Evidence
+
+- File pattern: *.test.ts
+- Consistent across test files
+
+---
+id: cat-food-unsupervised-survey-workflow-feature-development
+trigger: "when implementing a new feature"
+confidence: 0.9
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/Waytid-way/cat-food-unsupervised-survey
+---
+
+# Cat Food Unsupervised Survey Workflow Feature Development
+
+## Action
+
+Follow the feature-development workflow:
+1. Add feature implementation
+2. Add tests for feature
+3. Update documentation
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~30x per month
+- Files: dashboard/components/*, src/catfood_unsupervised/dashboard/components/*, **/*.test.*
+
+---
+id: cat-food-unsupervised-survey-workflow-incremental-presentation-development
+trigger: "when doing incremental presentation development"
+confidence: 0.7
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/Waytid-way/cat-food-unsupervised-survey
+---
+
+# Cat Food Unsupervised Survey Workflow Incremental Presentation Development
+
+## Action
+
+Follow the incremental-presentation-development workflow:
+1. Edit 'presentation/full-presentation-slides.html' to add new slides or sections.
+2. Commit changes with a message indicating which slides or sections were added.
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~4x per month
+- Files: presentation/full-presentation-slides.html
+
+---
+id: cat-food-unsupervised-survey-instinct-naming-files
+trigger: "When creating or renaming a file"
+confidence: 0.9
+domain: code-style
+source: repo-analysis
+source_repo: Waytid-way/cat-food-unsupervised-survey
+---
+
+# Cat Food Unsupervised Survey Instinct Naming Files
+
+## Action
+
+Use snake_case for file names
+
+## Evidence
+
+- Pattern in folderStructure and namingConventions: files use snake_case
+
+---
+id: cat-food-unsupervised-survey-instinct-naming-functions
+trigger: "When defining a function"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: Waytid-way/cat-food-unsupervised-survey
+---
+
+# Cat Food Unsupervised Survey Instinct Naming Functions
+
+## Action
+
+Use camelCase for function names
+
+## Evidence
+
+- Pattern in namingConventions: functions use camelCase
+
+---
+id: cat-food-unsupervised-survey-instinct-naming-classes
+trigger: "When defining a class"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: Waytid-way/cat-food-unsupervised-survey
+---
+
+# Cat Food Unsupervised Survey Instinct Naming Classes
+
+## Action
+
+Use PascalCase for class names
+
+## Evidence
+
+- Pattern in namingConventions: classes use PascalCase
+
+---
+id: cat-food-unsupervised-survey-instinct-naming-constants
+trigger: "When defining a constant"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: Waytid-way/cat-food-unsupervised-survey
+---
+
+# Cat Food Unsupervised Survey Instinct Naming Constants
+
+## Action
+
+Use SCREAMING_SNAKE_CASE for constant names
+
+## Evidence
+
+- Pattern in namingConventions: constants use SCREAMING_SNAKE_CASE
+
+---
+id: cat-food-unsupervised-survey-instinct-import-style
+trigger: "When importing modules in Python files"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: Waytid-way/cat-food-unsupervised-survey
+---
+
+# Cat Food Unsupervised Survey Instinct Import Style
+
+## Action
+
+Use relative imports
+
+## Evidence
+
+- Pattern in importStyle: relative
+
+---
+id: cat-food-unsupervised-survey-instinct-export-style
+trigger: "When exporting modules or functions"
+confidence: 0.7
+domain: code-style
+source: repo-analysis
+source_repo: Waytid-way/cat-food-unsupervised-survey
+---
+
+# Cat Food Unsupervised Survey Instinct Export Style
+
+## Action
+
+Use named exports
+
+## Evidence
+
+- Pattern in exportStyle: named
+
+---
+id: cat-food-unsupervised-survey-instinct-test-file-pattern
+trigger: "When creating a test file"
+confidence: 0.8
+domain: testing
+source: repo-analysis
+source_repo: Waytid-way/cat-food-unsupervised-survey
+---
+
+# Cat Food Unsupervised Survey Instinct Test File Pattern
+
+## Action
+
+Name the file with the pattern '*.test.ts'
+
+## Evidence
+
+- Pattern in testing: filePattern is '*.test.ts'
+
+---
+id: cat-food-unsupervised-survey-instinct-test-type
+trigger: "When writing tests"
+confidence: 0.7
+domain: testing
+source: repo-analysis
+source_repo: Waytid-way/cat-food-unsupervised-survey
+---
+
+# Cat Food Unsupervised Survey Instinct Test Type
+
+## Action
+
+Write unit tests
+
+## Evidence
+
+- Pattern in testing: testTypes include 'unit'
+
+---
+id: cat-food-unsupervised-survey-instinct-test-location
+trigger: "When placing test files"
+confidence: 0.8
+domain: testing
+source: repo-analysis
+source_repo: Waytid-way/cat-food-unsupervised-survey
+---
+
+# Cat Food Unsupervised Survey Instinct Test Location
+
+## Action
+
+Place test files in a separate 'tests' folder
+
+## Evidence
+
+- Pattern in architecture: testLocation is 'separate'
+- Common folder: 'tests'
+
+---
+id: cat-food-unsupervised-survey-instinct-commit-format
+trigger: "When making a git commit"
+confidence: 0.9
+domain: git
+source: repo-analysis
+source_repo: Waytid-way/cat-food-unsupervised-survey
+---
+
+# Cat Food Unsupervised Survey Instinct Commit Format
+
+## Action
+
+Use the conventional commit format with 'feat' prefix and scope in parentheses (e.g., 'feat(presentation): ...')
+
+## Evidence
+
+- Seen in commits: 'feat(presentation): add HTML skeleton for full presentation with Thai content'
+- Pattern in commits: type 'conventional', prefixes ['feat']
+
+---
+id: cat-food-unsupervised-survey-instinct-feature-dev-workflow
+trigger: "When implementing a new feature"
+confidence: 0.8
+domain: workflow
+source: repo-analysis
+source_repo: Waytid-way/cat-food-unsupervised-survey
+---
+
+# Cat Food Unsupervised Survey Instinct Feature Dev Workflow
+
+## Action
+
+Follow the sequence: add feature implementation → add tests for feature → update documentation
+
+## Evidence
+
+- Workflow 'feature-development': commitSequence and filesInvolved
+
+---
+id: cat-food-unsupervised-survey-instinct-incremental-presentation-dev
+trigger: "When adding new content or sections to the main presentation slides"
+confidence: 0.95
+domain: workflow
+source: repo-analysis
+source_repo: Waytid-way/cat-food-unsupervised-survey
+---
+
+# Cat Food Unsupervised Survey Instinct Incremental Presentation Dev
+
+## Action
+
+Edit 'presentation/full-presentation-slides.html' to add new slides or sections, then commit with a message indicating which slides or sections were added
+
+## Evidence
+
+- Workflow 'incremental-presentation-development': steps, commits, filesInvolved
+
