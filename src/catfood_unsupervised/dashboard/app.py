@@ -4,103 +4,97 @@ import os
 from pathlib import Path
 
 import dash
-from dash import html
-from flask import send_from_directory
-
-from catfood_unsupervised.dashboard.components.kpi_banner import render_kpi_banner
-from catfood_unsupervised.dashboard.components.shell import render_dashboard_shell
-from catfood_unsupervised.dashboard.components.tab_business_insight import (
-    render_business_insight_tab,
-)
-from catfood_unsupervised.dashboard.components.tab_clustering import render_clustering_tab
-from catfood_unsupervised.dashboard.components.tab_correlation import render_correlation_tab
-from catfood_unsupervised.dashboard.components.tab_eda import render_eda_tab
-from catfood_unsupervised.dashboard.components.tab_persona import render_persona_tab
-from catfood_unsupervised.dashboard.components.tab_supervised import render_supervised_tab
-from catfood_unsupervised.dashboard.config import SUPERVISED_OUTPUT_DIR, TAB_ITEMS
-from catfood_unsupervised.dashboard.data_loader import load_all_data
-from catfood_unsupervised.dashboard.bootstrap import dbc
-from catfood_unsupervised.dashboard.supervised_callbacks import register_supervised_callbacks
-from catfood_unsupervised.dashboard.supervised_data_loader import (
-    load_supervised_dashboard_bundle,
-)
+from dash import html, dcc, Input, Output, callback, page_container
+import dash_bootstrap_components as dbc
 
 OUTPUT_DIR = Path(os.environ.get("CATFOOD_OUTPUT_DIR", "outputs"))
-INITIAL_TAB = TAB_ITEMS[0]["value"] if TAB_ITEMS else "tab_eda"
+UNSUPERVISED_OUTPUT_DIR = OUTPUT_DIR
+SUPERVISED_OUTPUT_DIR = OUTPUT_DIR / "supervised"
 
 dash_app = dash.Dash(
     __name__,
-    title="Cat Food ML Dashboard",
+    use_pages=True,
     external_stylesheets=[
         dbc.themes.BOOTSTRAP,
-        "/assets/custom.css",
+        "/assets/style.css",
     ],
     meta_tags=[{"name": "viewport", "content": "width=device-width, initial-scale=1"}],
+    suppress_callback_exceptions=True,
+)
+
+dash_app.title = "CatFood ML Dashboard"
+
+dashboard_pages = [
+    {"label": "Home", "icon": "ph ph-house", "href": "/"},
+    {"label": "Unsupervised", "icon": "ph ph-chart-scatter", "href": "/unsupervised"},
+    {"label": "Supervised", "icon": "ph ph-robot", "href": "/supervised"},
+    {"label": "Business Insight", "icon": "ph ph-briefcase", "href": "/business"},
+]
+
+sidebar_nav = dbc.Nav(
+    [
+        dbc.NavItem(
+            dbc.NavLink(
+                [html.I(className=item["icon"], **{"aria-hidden": "true"}), html.Span(item["label"], className="shell-nav__text")],
+                href=item["href"],
+                active="exact",
+                className="nav-item",
+            )
+        )
+        for item in dashboard_pages
+    ],
+    vertical=True,
+    pills=True,
+    className="sidebar-nav",
 )
 
 
-@dash_app.server.route("/assets/<path:path>")
-def serve_static(path):
-    styles_dir = Path(__file__).parent / "styles"
-    return send_from_directory(styles_dir, path)
-
-
-try:
-    dashboard_data = load_all_data(OUTPUT_DIR)
-    KPI_METRICS = dashboard_data.metrics
-except Exception:
-    dashboard_data = None
-    KPI_METRICS = {}
-
-try:
-    supervised_dashboard_data = load_supervised_dashboard_bundle(SUPERVISED_OUTPUT_DIR)
-except Exception:
-    supervised_dashboard_data = None
-
-
-@dash_app.callback(
-    dash.Output("tab_content", "children"),
-    dash.Input("unsupervised-tabs", "value"),
-)
-def render_tab_content(selected_tab: str):
-    if selected_tab == "tab_eda":
-        if dashboard_data is None:
-            return html.Div("Data not available")
-        return render_eda_tab(dashboard_data)
-    elif selected_tab == "tab_correlation":
-        if dashboard_data is None:
-            return html.Div("Data not available")
-        return render_correlation_tab(dashboard_data)
-    elif selected_tab == "tab_clustering":
-        if dashboard_data is None:
-            return html.Div("Data not available")
-        return render_clustering_tab(dashboard_data)
-    elif selected_tab == "tab_persona":
-        if dashboard_data is None:
-            return html.Div("Data not available")
-        return render_persona_tab(dashboard_data)
-    elif selected_tab == "tab_supervised":
-        if supervised_dashboard_data is None:
-            return html.Div("Supervised data not available")
-        return render_supervised_tab(supervised_dashboard_data)
-    elif selected_tab == "tab_business_insight":
-        if supervised_dashboard_data is None:
-            return html.Div("Supervised data not available")
-        return render_business_insight_tab(supervised_dashboard_data)
-    return html.Div("Select a tab")
-
-
-dash_app.layout = render_dashboard_shell(
-    active_tab=INITIAL_TAB,
-    content=html.Div(
+def render_shell():
+    return html.Div(
         [
-            render_kpi_banner(KPI_METRICS),
-            html.Div(id="tab_content", children=render_tab_content(INITIAL_TAB)),
+            html.Aside(
+                [
+                    html.Div(
+                        [
+                            html.Div("AI", className="shell-logo"),
+                            html.Div(
+                                [html.H1("CatFood ML", className="shell-brand"), html.P("Survey intelligence workspace", className="shell-brand__lede")],
+                                className="shell-brand-col",
+                            ),
+                        ],
+                        className="shell-brand-row",
+                    ),
+                    html.Div("Navigation", className="shell-nav-heading"),
+                    sidebar_nav,
+                    html.Div(
+                        dbc.NavItem(dbc.NavLink([html.I(className="ph ph-sign-out", **{"aria-hidden": "true"}), html.Span("Log out")], href="#", className="nav-item shell-logout-nav")),
+                        className="shell-footer",
+                    ),
+                ],
+                className="shell-sidebar",
+            ),
+            html.Main(
+                [
+                    html.Header(
+                        [
+                            html.Div([html.P("Cat Food Packaging Survey Analysis (n=148)", className="shell-eyebrow"), html.H2("Welcome back, Team!", className="shell-title")], className="shell-heading"),
+                            html.Div(
+                                [
+                                    html.Button(html.I(className="ph ph-calendar-blank", **{"aria-hidden": "true"}), className="shell-icon-button", type="button", n_clicks=0),
+                                    html.Button([html.I(className="ph ph-plus", **{"aria-hidden": "true"}), html.Span("Add new widget")], className="shell-primary-button", type="button", n_clicks=0),
+                                ],
+                                className="shell-actions",
+                            ),
+                        ],
+                        className="shell-header",
+                    ),
+                    html.Div(page_container, className="shell-content"),
+                ],
+                className="shell-main",
+            ),
         ],
-        className="shell-tab-body",
-    ),
-)
+        className="dash-shell shell-root",
+    )
 
 
-if supervised_dashboard_data is not None:
-    register_supervised_callbacks(dash_app, supervised_dashboard_data)
+dash_app.layout = render_shell()
