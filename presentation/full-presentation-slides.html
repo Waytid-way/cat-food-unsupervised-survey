@@ -392,6 +392,94 @@ render_supervised_tab(bundle, recent_history=...)</code></pre>
     <p>Business users สามารถทดสอบแถว, ตรวจสอบผลลัพธ์, และดู usage trail ในที่เดียว</p>
   </section>
 
+  <section id="slide16" class="slide">
+    <h2>Business Strategy</h2>
+    <h3>Segment 1 - Premium Quality Seekers</h3>
+    <ul>
+      <li>Lead with premium look and feel</li>
+      <li>ใช้ natural / quality cues ที่เด่นกว่า</li>
+      <li>ทำให้บรรจุภัณฑ์ดูน่าเชื่อถือ ออกแบบมาอย่างดี และโดดเด่น</li>
+    </ul>
+    <h3>Segment 2 - Main Market</h3>
+    <ul>
+      <li>Keep the message simple and clear</li>
+      <li>เน้นรสชาติ ความไว้วางใจ และคุ้มค่า</li>
+      <li>ใช้บรรจุภัณฑ์ที่เข้าใจง่ายเมื่อมองเร็ว</li>
+    </ul>
+    <h3>Packaging implication</h3>
+    <p>opt03 เป็นทิศทางออกแบบหลักเพราะชนะ top-3 vote ranking ข้ามทั้งสอง segment</p>
+    <h3>Campaign implication</h3>
+    <p>รักษาการออกแบบหลักไว้หนึ่งอัน แล้วปรับ message layer สำหรับ premium vs mass-market audiences</p>
+  </section>
+
+  <section id="slide17" class="slide">
+    <h2>Limitations</h2>
+    <h3>Unsupervised limitations</h3>
+    <ul>
+      <li>Silhouette score: <strong>0.193</strong></li>
+      <li>Davies-Bouldin: <strong>2.032</strong></li>
+      <li>Cophenetic correlation: <strong>0.473</strong></li>
+    </ul>
+    <h3>What this means</h3>
+    <p>clusters มีประโยชน์สำหรับ business storytelling แต่ไม่ใช่กลุ่มธรรมชาติที่แยกออกอย่างสมบูรณ์</p>
+    <h3>Supervised limitations</h3>
+    <ul>
+      <li>Segment 1 recall: <strong>0.50</strong></li>
+      <li>minority class ต้องการตัวอย่างเพิ่มเติม</li>
+    </ul>
+    <h3>Recommended wording</h3>
+    <p>เรียกนี่ว่า pragmatic segmentation system ไม่ใช่ cluster boundary ที่สมบูรณ์แบบ</p>
+  </section>
+
+  <section id="slide18" class="slide">
+    <h2>Final Takeaway</h2>
+    <h3>สิ่งที่โปรเจกต์ส่งมอบ</h3>
+    <ul>
+      <li>EDA ให้ read ที่ชัดเจนเกี่ยวกับ survey behavior</li>
+      <li>Unsupervised learning แปลง survey preferences เป็นสอง personas ที่สามารถดำเนินการได้</li>
+      <li>Supervised learning ทำให้ผลลัพธ์เป็นระบบให้คะแนนที่ใช้งานได้จริง</li>
+      <li>Dashboard เชื่อมโมเดลกับ business usage และ audit history</li>
+    </ul>
+    <h3>Final recommendation</h3>
+    <ul>
+      <li>ใช้ opt03 เป็นทิศทางออกแบบหลัก</li>
+      <li>ปรับ communication ตาม segment</li>
+      <li>เก็บตัวอย่าง premium เพิ่มในรอบ survey ถัดไปเพื่อปรับปรุง minority-class recall</li>
+    </ul>
+  </section>
+
+  <section id="slide19" class="slide">
+    <h2>Backup: Metric Definitions</h2>
+    <h3>Unsupervised metrics</h3>
+    <ul>
+      <li><strong>Silhouette:</strong> how well a sample fits its cluster vs others</li>
+      <li><strong>Davies-Bouldin:</strong> lower is better; measures compactness and separation</li>
+      <li><strong>Cophenetic correlation:</strong> how well hierarchical clustering preserves distances</li>
+    </ul>
+    <h3>Supervised metrics</h3>
+    <ul>
+      <li><strong>Accuracy:</strong> overall correct predictions</li>
+      <li><strong>Macro F1:</strong> average F1 across classes with equal class weight</li>
+      <li><strong>Weighted F1:</strong> F1 weighted by support</li>
+      <li><strong>ROC AUC:</strong> probability ranking quality for binary classification</li>
+    </ul>
+  </section>
+
+  <section id="slide20" class="slide">
+    <h2>Backup: Code Appendix</h2>
+    <h3>EDA / cleaning</h3>
+    <pre><code>raw_df = load_raw_export(data_path)
+completed_df = filter_completed_responses(raw_df, top3_column=top3_column)</code></pre>
+    <h3>Unsupervised orchestration</h3>
+    <pre><code>feature_bundle = _build_feature_bundle(completed_df, top3_column=top3_column)
+pca_bundle = _run_pca_pipeline(feature_bundle["ipsatized_option_ratings"])</code></pre>
+    <h3>Supervised scoring</h3>
+    <pre><code>prediction_frame = predict_supervised_segment(model_path, input_data)</code></pre>
+    <h3>Dashboard state</h3>
+    <pre><code>bundle = load_supervised_dashboard_bundle(output_dir)</code></pre>
+    <p><strong>ใช้ slide นี้เฉพาะเมื่อ panel ถามเส้นทางโค้ดที่แน่นอนเท่านั้น</strong></p>
+  </section>
+
   <script>
     const slides = document.querySelectorAll('.slide');
     slides.forEach((_, i) => {
