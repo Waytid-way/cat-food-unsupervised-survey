@@ -1,0 +1,120 @@
+Full Presentation - EDA + Unsupervised + Supervised + Business
+Cat Food Packaging Survey | AI-Driven Marketing Campaign System
+Total slides: 20
+
+Slide 1 - Title
+- Project: Cat Food Packaging Survey
+- Subtitle: AI-Driven Marketing Campaign System for EDA, Segmentation, Prediction, and Business Decision
+- One-line story: turn survey answers into customer segments, then turn segments into a reusable scoring system for marketing.
+
+Slide 2 - Problem Statement
+- Which packaging design fits which customer group?
+- Can we turn survey insights into a system that scores new customers automatically?
+- Flow: Raw survey -> EDA -> Unsupervised segmentation -> Supervised classifier -> Dashboard + business action
+
+Slide 3 - Data Overview
+- Source: Google Form export from the cat food packaging survey
+- Raw survey rows loaded: 167
+- Completed top-3 responses used for modeling: 148
+- Feature footprint: 50 Likert rating columns, 5 buy-factor columns, 8 packaging-importance columns, 5 demographic columns
+
+Slide 4 - EDA Cleaning
+- Promote the true header row, remove empty exported rows, keep only completed top-3 responses
+- Code focus: load_raw_export() and filter_completed_responses()
+- Effect: 167 raw rows -> 148 valid responses
+
+Slide 5 - EDA Findings
+- Female 73.0%, age 30-39 41.9%, single / not married 35.1%
+- Taste 4.43, natural ingredients 4.26, famous brand 4.06
+- Top packaging choices: opt03 251, opt02 138, opt01 114
+- Strong correlations: opt03-opt04 r=0.625, opt01-opt02 r=0.568, opt05-opt09 r=0.635
+
+Slide 6 - Unsupervised Overview
+- Pipeline: Encode -> Ipsatize -> Impute -> PCA -> K-Means -> Hierarchical validation -> Isolation Forest
+- Outputs: customer segments and anomaly flags
+- Reference outputs: outputs/metrics_summary.json, outputs/segment_profiles.csv, reports/unsupervised_report_th.md
+
+Slide 7 - Unsupervised Feature Engineering
+- Convert top-3 rankings into weighted vote features
+- Reduce response-style bias with ipsatization
+- Fill missing buy-factor values before clustering
+- Code focus: build_vote_features() and ipsatize_rows()
+
+Slide 8 - Unsupervised Evaluation
+- PCA selected 8 components
+- Total explained variance: 68.6%
+- Best K-Means k=2
+- Silhouette 0.193, Davies-Bouldin 2.032
+- Hierarchical cophenetic correlation 0.473
+
+Slide 9 - Segments & Anomalies
+- Segment 1: Premium Quality Seekers, 36 people, 24.3%
+- Segment 2: Main Market, 112 people, 75.7%
+- Isolation Forest found 26 anomalies, 17.6%
+- Segmentation is useful, but overlap still exists
+
+Slide 10 - Bridge to Supervised
+- Unsupervised gives group structure
+- Supervised scores a new customer row instantly
+- Training data: outputs/clean_dataset_with_segments.csv
+- Remove anomaly_flag = 1
+- Avoid leakage columns like vote_*, PC*, anomaly_score
+
+Slide 11 - Supervised Feature Contract
+- Only approved survey features enter the model
+- Missing values become __missing__
+- Everything is converted to string for one-hot encoding
+- Code focus: get_supervised_feature_columns() and build_supervised_feature_frame()
+
+Slide 12 - Supervised Training Workflow
+- Clean rows after anomaly removal: 122
+- Models: Logistic Regression, Random Forest, Gradient Boosting, RBF SVM
+- Model selection: macro F1 first, then weighted F1, then accuracy
+- Code focus: evaluate_model_suite()
+
+Slide 13 - Supervised Results
+- Best model: random_forest
+- Accuracy 0.88, Macro F1 0.797, Weighted F1 0.864, ROC AUC 0.759
+- Segment 1 recall 0.50
+- Segment 2 recall 1.00
+- The model is stronger on the majority class than the minority class
+
+Slide 14 - Scoring Flow
+- Load the trained model artifact
+- Prepare the input frame with the same feature contract
+- Predict the segment and probability distribution
+- Save the result to SQLite for traceability
+- Code focus: predict_supervised_segment() and append_prediction_history()
+
+Slide 15 - Dashboard Usage
+- Prediction form, result card, per-class metrics, model comparison, confusion matrix, feature importance, ROC, recent history
+- Code focus: load_supervised_dashboard_bundle() and render_supervised_tab()
+
+Slide 16 - Business Strategy
+- Segment 1: premium look, natural / quality cues, designed and distinctive packaging
+- Segment 2: simple message, trust, value, easy-to-understand packaging
+- opt03 is the core design direction because it wins across both segments
+
+Slide 17 - Limitations
+- Unsupervised metrics show overlap: silhouette 0.193, Davies-Bouldin 2.032, cophenetic 0.473
+- The clusters are useful for business storytelling, but not perfectly separated natural groups
+- Supervised segment 1 recall is only 0.50
+
+Slide 18 - Final Takeaway
+- EDA gives a clean read on survey behavior
+- Unsupervised turns preferences into two actionable personas
+- Supervised operationalizes the result into a scoring model
+- Dashboard connects the model to business usage and audit history
+
+Slide 19 - Backup: Metric Definitions
+- Silhouette: how well a sample fits its cluster vs others
+- Davies-Bouldin: lower is better
+- Cophenetic correlation: how well hierarchical clustering preserves distances
+- Macro F1: average F1 across classes with equal class weight
+- ROC AUC: probability ranking quality for binary classification
+
+Slide 20 - Backup: Code Appendix
+- EDA / cleaning: load_raw_export() -> filter_completed_responses()
+- Unsupervised orchestration: _build_feature_bundle() -> _run_pca_pipeline()
+- Supervised scoring: predict_supervised_segment()
+- Dashboard state: load_supervised_dashboard_bundle()

@@ -34,6 +34,10 @@ def test_render_supervised_tab_contains_scoring_workflow(tmp_path: Path, supervi
     assert "Accuracy" in rendered_text
     assert "Macro F1" in rendered_text
     assert "Weighted F1" in rendered_text
+    assert "Per-class metrics" in rendered_text
+    assert "Precision" in rendered_text
+    assert "Recall" in rendered_text
+    assert "F1" in rendered_text
     assert len(dropdowns) == len(FEATURE_COLUMNS)
     assert all(dropdown.options for dropdown in dropdowns)
 

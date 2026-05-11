@@ -1,21 +1,33 @@
-# รายงานโมเดล Supervised Learning
+# Supervised Learning Model Report
 
-## สรุปผู้บริหาร
-- จำนวนตัวอย่างที่ใช้ฝึก: 122 ราย
-- จำนวนฟีเจอร์หลังเข้ารหัส: 18 ฟีเจอร์
-- โมเดลที่ดีที่สุด: random_forest
+## Executive Summary
+- Training rows used: 122
+- Encoded feature count: 18
+- Best model: random_forest
 - Accuracy: 0.880
 - Macro F1: 0.797
 - Weighted F1: 0.864
-- ROC AUC: 0.759
+- ROC AUC: 0.588
 
-## เปรียบเทียบโมเดล
+## Model Justification
+- Selected `random_forest` because it ranked first on macro F1, weighted F1, and accuracy in the holdout comparison.
+- Holdout performance for the selected model: accuracy 0.880, macro F1 0.797, weighted F1 0.864.
+- Anomaly rows were excluded before training, so the comparison is based on clean segment labels only.
+- The model suite uses the approved supervised feature contract and avoids leakage columns.
+
+## Model Comparison
 | model | accuracy | macro_f1 | weighted_f1 |
 | --- | --- | --- | --- |
 | random_forest | 0.880 | 0.797 | 0.864 |
-| gradient_boosting | 0.800 | 0.762 | 0.811 |
+| gradient_boosting | 0.760 | 0.671 | 0.760 |
 | svm_rbf | 0.720 | 0.636 | 0.727 |
-| logistic_regression | 0.520 | 0.500 | 0.552 |
+| logistic_regression | 0.680 | 0.603 | 0.694 |
+
+## Per-class metrics
+| class | precision | recall | f1_score | support |
+| --- | --- | --- | --- | --- |
+| Segment 1 | 1.000 | 0.500 | 0.667 | 6 |
+| Segment 2 | 0.864 | 1.000 | 0.927 | 19 |
 
 ## Confusion Matrix
 |  | pred_1 | pred_2 |
@@ -26,23 +38,23 @@
 ## Feature Importance
 | feature | importance_mean | importance_std |
 | --- | --- | --- |
-| บรรจุภัณฑ์ของอาหารแมวสำเร็จรูปชนิดเม็ดที่ส่งผลต่อการตัดสินใจซื้อ [บรรจุภัณฑ์มีภาพแมว] | 0.0920 | 0.0312 |
-| อายุของคุณ | 0.0520 | 0.0312 |
-| สถานภาพสมรส | 0.0440 | 0.0215 |
-| คุณสมบัติของอาหารแมวสำเร็จรูปชนิดเม็ดที่ส่งผลต่อการตัดสินใจซื้อ [รสชาติกลมกล่อมอร่อยถูกปากแมว เช่น เทไว้แล้วแมวกินหมดไม่เหลือ, หยิบถุงแล้วแมวรอกิน] | 0.0440 | 0.0332 |
-| คุณสมบัติของอาหารแมวสำเร็จรูปชนิดเม็ดที่ส่งผลต่อการตัดสินใจซื้อ [แบรนด์มีชื่อเสียงเป็นที่รู้จัก] | 0.0400 | 0.0253 |
-| สำหรับบรรจุภัณฑ์อาหารแมว คุณชอบภาพแบบใด | 0.0400 | 0.0310 |
-| บรรจุภัณฑ์ของอาหารแมวสำเร็จรูปชนิดเม็ดที่ส่งผลต่อการตัดสินใจซื้อ [บรรจุภัณฑ์เป็นมิตรต่อสิ่งแวดล้อม] | 0.0320 | 0.0160 |
-| บรรจุภัณฑ์ (packaging) มีผลต่อการตัดสินใจซื้อใจหรือไม่ | 0.0320 | 0.0240 |
-| บรรจุภัณฑ์ของอาหารแมวสำเร็จรูปชนิดเม็ดที่ส่งผลต่อการตัดสินใจซื้อ [บรรจุภัณฑ์มีภาพวัตถุดิบและส่วนผสมจริงให้เห็น] | 0.0320 | 0.0240 |
-| บรรจุภัณฑ์ของอาหารแมวสำเร็จรูปชนิดเม็ดที่ส่งผลต่อการตัดสินใจซื้อ [มีการการันตี เช่น ได้รับรางวัล, ยอดขายอันดับ 1] | 0.0280 | 0.0183 |
+| บรรจุภัณฑ์ของอาหารแมวสำเร็จรูปชนิดเม็ดที่ส่งผลต่อการตัดสินใจซื้อ [บรรจุภัณฑ์มีภาพแมว] | 0.0960 | 0.0265 |
+| บรรจุภัณฑ์ของอาหารแมวสำเร็จรูปชนิดเม็ดที่ส่งผลต่อการตัดสินใจซื้อ [บรรจุภัณฑ์มีภาพวัตถุดิบและส่วนผสมจริงให้เห็น] | 0.0640 | 0.0265 |
+| สำหรับบรรจุภัณฑ์อาหารแมว คุณชอบภาพแบบใด | 0.0400 | 0.0000 |
+| บรรจุภัณฑ์ของอาหารแมวสำเร็จรูปชนิดเม็ดที่ส่งผลต่อการตัดสินใจซื้อ [บรรจุภัณฑ์มีภาพอาหารเม็ด รูปทรงของอาหารเม็ดจริงให้เห็น] | 0.0320 | 0.0160 |
+| บรรจุภัณฑ์ของอาหารแมวสำเร็จรูปชนิดเม็ดที่ส่งผลต่อการตัดสินใจซื้อ [บรรจุภัณฑ์เป็นมิตรต่อสิ่งแวดล้อม] | 0.0320 | 0.0349 |
+| บรรจุภัณฑ์ของอาหารแมวสำเร็จรูปชนิดเม็ดที่ส่งผลต่อการตัดสินใจซื้อ [มีสัญลักษณ์์สื่อถึงประโยชน์หรือฟังก์ชั่น เช่น ช่วยลดก้อนขน] | 0.0240 | 0.0196 |
+| อายุของคุณ | 0.0200 | 0.0200 |
+| บรรจุภัณฑ์ (packaging) มีผลต่อการตัดสินใจซื้อใจหรือไม่ | 0.0160 | 0.0196 |
+| สถานภาพสมรส | 0.0160 | 0.0196 |
+| เพศของคุณ | 0.0120 | 0.0183 |
 
-## คำแนะนำเชิงธุรกิจ
-- กลุ่มที่สะท้อนด้วย segment มากที่สุดควรอธิบายด้วยโมเดล `random_forest` เพราะให้ผลดีที่สุดบนชุดทดสอบ
-- ควรใช้ feature ที่เด่นที่สุด 3 อันดับแรกจากโมเดลนี้เป็นตัวขับ narrative ใน dashboard และ deck สำหรับลูกค้า
-- ใช้ confusion matrix เพื่อตรวจว่ากลุ่มใดสับสนกันมากที่สุดก่อนนำไปออกแบบ campaign segmentation จริง
+## Business Guidance
+- Use `random_forest` as the source of truth for segment prediction.
+- Revisit feature engineering if the confusion matrix shows a strong class bias.
+- Use the top three features from the importance table as the narrative backbone in dashboard and slides.
 
-## ไฟล์ผลลัพธ์ที่เกี่ยวข้อง
+## Output Files
 - `outputs/supervised/metrics_summary.json`
 - `outputs/supervised/model_comparison.csv`
 - `outputs/supervised/confusion_matrix.csv`

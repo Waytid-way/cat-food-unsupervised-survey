@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Cat Food Packaging Survey - AI-Driven Marketing Campaign System: EDA, customer segmentation, predictive modeling, and business strategy">
+  <title>Cat Food Packaging Survey - AI-Driven Marketing Campaign System</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&family=Noto+Sans+Thai:wght@400;700&display=swap');
+
+    :root {
+      --bg-dark: #0f1923;
+      --bg-light: #162030;
+      --bg-code: #1e2d3d;
+      --text-primary: #e0e6ed;
+      --text-secondary: #c8d4e0;
+      --text-muted: #7a8a9a;
+      --accent: #00d4aa;
+      --nav-dot: #3a4a5a;
+      --border: #2a3a4a;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Sarabun', 'Noto Sans Thai', sans-serif; background: var(--bg-dark); color: var(--text-primary); counter-reset: slide; }
+    .slide { min-height: 100vh; padding: 4rem 2rem; display: flex; flex-direction: column; justify-content: center; counter-increment: slide; position: relative; }
+    .slide::before {
+      content: "Slide " counter(slide) " / 20";
+      position: absolute;
+      top: 1rem;
+      left: 2rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+    .slide:nth-child(even) { background: var(--bg-light); }
+    .slide:nth-child(odd) { background: var(--bg-dark); }
+    .slide h1 { font-size: 2.5rem; color: var(--accent); margin-bottom: 1.5rem; }
+    .slide h2 { font-size: 1.8rem; color: var(--accent); margin-bottom: 1rem; }
+    .slide h2.subtitle { color: var(--text-secondary); font-size: 1.3rem; }
+    .slide p, .slide li { font-size: 1.1rem; line-height: 1.8; color: var(--text-secondary); }
+    .slide p.intro { margin-top: 2rem; font-size: 1rem; color: var(--text-muted); }
+    .slide ul { padding-left: 2rem; margin-bottom: 1rem; }
+    .slide li { margin-bottom: 0.5rem; }
+    .slide code { background: var(--bg-code); padding: 0.2rem 0.5rem; border-radius: 4px; color: var(--accent); }
+    .slide pre { background: var(--bg-code); padding: 1rem; border-radius: 8px; overflow-x: auto; margin-bottom: 1rem; }
+    .slide pre code { background: none; padding: 0; }
+    nav { position: fixed; right: 2rem; top: 50%; transform: translateY(-50%); z-index: 100; }
+    nav a { display: block; width: 12px; height: 12px; background: var(--nav-dot); margin: 8px; border-radius: 50%; transition: background 0.3s; }
+    nav a:hover, nav a.active { background: var(--accent); }
+    table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+    th, td { border: 1px solid var(--border); padding: 0.75rem; text-align: left; }
+    th { background: var(--bg-code); color: var(--accent); }
+
+    @media print {
+      .slide { min-height: auto; padding: 2rem 1rem; page-break-after: always; }
+      nav { display: none; }
+      body { background: white; color: black; }
+      .slide:nth-child(even), .slide:nth-child(odd) { background: white; }
+      .slide h1, .slide h2 { color: black; }
+      .slide p, .slide li { color: #333; }
+    }
+  </style>
+</head>
+<body>
+  <nav id="nav"></nav>
+
+  <section id="slide1" class="slide">
+    <h1>สำรวจบรรจุภัณฑ์อาหารแมว</h1>
+    <h2 class="subtitle">ระบบแคมเปญการตลาดด้วย AI สำหรับ EDA, การแบ่งกลุ่ม, การพยากรณ์ และการตัดสินใจทางธุรกิจ</h2>
+    <p class="intro">แปลงคำตอบแบบสำรวจเป็นกลุ่มลูกค้า → จากนั้นแปลงกลุ่มเป็นระบบให้คะแนนสำหรับการตลาด</p>
+  </section>
+
+  <section id="slide2" class="slide">
+    <h2>คำถามทางธุรกิจ</h2>
+    <ul>
+      <li>การออกแบบบรรจุภัณฑ์ใดเหมาะกับกลุ่มลูกค้าใด?</li>
+      <li>เราสามารถเปลี่ยนข้อมูลเชิงลึกจากแบบสำรวจเป็นระบบที่ให้คะแนนลูกค้าใหม่โดยอัตโนมัติได้หรือไม่?</li>
+    </ul>
+    <h2>สัญญาของระบบ</h2>
+    <ul>
+      <li>EDA บอกเราว่าข้อมูลมีลักษณะอย่างไร</li>
+      <li>Unsupervised learning ค้นหากลุ่มลูกค้าและความผิดปกติ</li>
+      <li>Supervised learning เปลี่ยนกลุ่มเหล่านั้นเป็นโมเดลพยากรณ์</li>
+      <li>ข้อมูลเชิงธุรกิจแปลงผลลัพธ์ของโมเดลเป็นการดำเนินการแคมเปญ</li>
+    </ul>
+    <h2>End-to-end flow</h2>
+    <pre><code>Raw survey -> EDA -> Unsupervised segmentation -> Supervised classifier -> Dashboard + business action</code></pre>
+  </section>
+
+  <section id="slide3" class="slide">
+    <h2>ภาพรวมข้อมูล</h2>
+    <ul>
+      <li><strong>แหล่งที่มา:</strong> ส่งออกจาก Google Form แบบสำรวจบรรจุภัณฑ์อาหารแมว</li>
+      <li><strong>แถวดิบที่โหลด:</strong> 167 แถว</li>
+      <li><strong>คำตอบ top-3 ที่สมบูรณ์ที่ใช้สำหรับการสร้างโมเดล:</strong> 148 คำตอบ</li>
+    </ul>
+    <h2>สิ่งที่อยู่ในแบบสำรวจ</h2>
+    <ul>
+      <li>ข้อมูลประชากร</li>
+      <li>ปัจจัยการซื้อ</li>
+      <li>ความสำคัญของบรรจุภัณฑ์</li>
+      <li>การให้คะแนนตัวเลือก 10 รูปแบบบรรจุภัณฑ์</li>
+    </ul>
+    <h2>Feature footprint</h2>
+    <ul>
+      <li>50 Likert rating columns</li>
+      <li>5 buy-factor columns</li>
+      <li>8 packaging-importance columns</li>
+      <li>5 demographic columns</li>
+    </ul>
+  </section>
+
+  <section id="slide4" class="slide">
+    <h2>EDA การทำความสะอาดข้อมูล</h2>
+    <p><strong>เหตุผลที่ขั้นตอนนี้สำคัญ:</strong> การส่งออก Google Form ดิบมีแถว metadata และคำตอบที่ไม่สมบูรณ์ เราต้องการเฉพาะผู้ตอบที่ทำ top-3 choice เสร็จสมบูรณ์</p>
+    <h2>กฎการทำความสะอาดหลัก</h2>
+    <ul>
+      <li>เลื่อนแถวหัวข้อที่ถูกต้องขึ้นมา</li>
+      <li>ลบแถวว่างที่ส่งออกมา</li>
+      <li>เก็บเฉพาะคำตอบ top-3 ที่สมบูรณ์</li>
+    </ul>
+    <h2>Code snippet</h2>
+    <pre><code>raw_df = load_raw_export(data_path)
+top3_column = raw_df.columns[TOP3_COLUMN_INDEX]
+completed_df = filter_completed_responses(raw_df, top3_column=top3_column)</code></pre>
+    <p><strong>ผลลัพธ์:</strong> 167 แถวดิบ → 148 คำตอบที่ถูกต้อง กลายเป็นฐานที่ใช้ร่วมกันสำหรับทั้ง unsupervised analysis และ supervised training</p>
+  </section>
+
+  <section id="slide5" class="slide">
+    <h2>ผลการค้นพบจาก EDA</h2>
+    <h3>Demographic snapshot</h3>
+    <ul>
+      <li><strong>เพศหญิง:</strong> 73.0%</li>
+      <li><strong>อายุ 30-39:</strong> 41.9%</li>
+      <li><strong>โสด/ไม่ได้แต่งงาน:</strong> 35.1%</li>
+    </ul>
+    <h3>ปัจจัยการซื้อ</h3>
+    <ul>
+      <li>รสชาติ: 4.43</li>
+      <li>ส่วนผสมธรรมชาติ: 4.26</li>
+      <li>ยี่ห้อดัง: 4.06</li>
+    </ul>
+    <h3>ตัวเลือกบรรจุภัณฑ์ยอดนิยม</h3>
+    <ul>
+      <li>opt03: 251</li>
+      <li>opt02: 138</li>
+      <li>opt01: 114</li>
+    </ul>
+    <h3>Correlation signal</h3>
+    <ul>
+      <li>opt03 - opt04: r = 0.625</li>
+      <li>opt01 - opt02: r = 0.568</li>
+      <li>opt05 - opt09: r = 0.635</li>
+    </ul>
+    <p><strong>การตีความ:</strong> opt03 เป็นผู้นำชัดเจน รสชาติและส่วนผสมธรรมชาติครองการตัดสินใจ ความชอบมีโครงสร้างไม่ใช่สุ่ม การแบ่งกลุ่มคุ้มค่า</p>
+  </section>
+
+  <section id="slide6" class="slide">
+    <h2>Unsupervised Overview</h2>
+    <h3>ทำไมต้องเริ่มจาก unsupervised</h3>
+    <ul>
+      <li>เราไม่รู้กลุ่มลูกค้าที่แท้จริงก่อนการสร้างโมเดล</li>
+      <li>แบบสำรวจออกแบบมาเพื่อค้นหารูปแบบ ไม่ใช่แค่พยากรณ์ label</li>
+    </ul>
+    <h3>Pipeline</h3>
+    <pre><code>Encode -> Ipsatize -> Impute -> PCA -> K-Means -> Hierarchical validation -> Isolation Forest</code></pre>
+    <h3>สิ่งที่ได้จากขั้นตอนนี้</h3>
+    <ul>
+      <li>customer segments</li>
+      <li>anomaly flags</li>
+      <li>a business-friendly persona view</li>
+    </ul>
+    <h3>Reference outputs</h3>
+    <ul>
+      <li><code>outputs/metrics_summary.json</code></li>
+      <li><code>outputs/segment_profiles.csv</code></li>
+      <li><code>reports/unsupervised_report_th.md</code></li>
+    </ul>
+  </section>
+
+  <section id="slide7" class="slide">
+    <h2>Unsupervised Feature Engineering</h2>
+    <h3>สิ่งที่โค้ดทำ</h3>
+    <ul>
+      <li>แปลง top-3 rankings เป็น weighted vote features</li>
+      <li>ลด response-style bias ด้วย ipsatization</li>
+      <li>เติม missing buy-factor values ก่อน clustering</li>
+      <li>สร้าง merged feature matrix สำหรับ clustering และ anomaly detection</li>
+    </ul>
+    <h3>Code snippet</h3>
+    <pre><code>vote_features = build_vote_features(
+    rankings,
+    rank_columns=rankings.columns.tolist(),
+    option_count=OPTION_COUNT,
+)
+
+ipsatized_option_ratings = pd.DataFrame(
+    ipsatize_rows(option_ratings.to_numpy()),
+    index=completed_df.index,
+    columns=[f"{column}_ips" for column in option_ratings.columns],
+).fillna(0.0)</code></pre>
+    <h3>ทำไม ipsatization ถึงสำคัญ</h3>
+    <p>มันลบค่าเฉลี่ยของผู้ตอบแต่ละคนออกจาก rating ของพวกเขา ช่วยแยกความชอบที่แท้จริงออกจากนิสัยการให้คะแนนสูงหรือต่ำของแต่ละคน</p>
+  </section>
+
+  <section id="slide8" class="slide">
+    <h2>Unsupervised Evaluation</h2>
+    <h3>PCA</h3>
+    <ul>
+      <li>Input features: 50 Likert ratings</li>
+      <li>Selected components: <strong>8</strong></li>
+      <li>Total explained variance: <strong>68.6%</strong></li>
+    </ul>
+    <h3>K-Means sweep</h3>
+    <ul>
+      <li>Best k = 2</li>
+      <li>Silhouette score: <strong>0.193</strong></li>
+      <li>Davies-Bouldin: <strong>2.032</strong></li>
+    </ul>
+    <h3>Hierarchical validation</h3>
+    <ul>
+      <li>Ward linkage</li>
+      <li>Cophenetic correlation: <strong>0.473</strong></li>
+    </ul>
+    <p><strong>การตีความ:</strong> clusters ใช้งานได้ แต่ไม่แยกออกอย่างชัดเจน นี่คือ pragmatic segmentation ไม่ใช่การแบ่งที่สมบูรณ์แบบทางคณิตศาสตร์</p>
+  </section>
+
+  <section id="slide9" class="slide">
+    <h2>Segments & Anomalies</h2>
+    <h3>Final segments</h3>
+    <table>
+      <tr><th>Segment</th><th>Persona</th><th>n</th><th>Share</th></tr>
+      <tr><td>1</td><td>Premium Quality Seekers</td><td>36</td><td>24.3%</td></tr>
+      <tr><td>2</td><td>Main Market</td><td>112</td><td>75.7%</td></tr>
+    </table>
+    <h3>Segment 1</h3>
+    <ul>
+      <li>more quality / design / natural-ingredient oriented</li>
+      <li>stronger premium signal</li>
+      <li>better fit for premium packaging language</li>
+    </ul>
+    <h3>Segment 2</h3>
+    <ul>
+      <li>larger mass-market base</li>
+      <li>more practical and trust-driven</li>
+      <li>better fit for clear, simple, confidence-building packaging</li>
+    </ul>
+    <h3>Anomaly detection</h3>
+    <ul>
+      <li>Isolation Forest found <strong>26 anomalies</strong></li>
+      <li>Anomaly rate: <strong>17.6%</strong></li>
+    </ul>
+    <p><strong>Caution:</strong> The segment boundary is useful, but there is still overlap.</p>
+  </section>
+
+  <section id="slide10" class="slide">
+    <h2>Bridge to Supervised</h2>
+    <h3>ทำไมต้องมี supervised</h3>
+    <ul>
+      <li>Unsupervised บอกเราโครงสร้างกลุ่ม</li>
+      <li>Supervised ช่วยให้เราให้คะแนนแถวลูกค้าใหม่ได้ทันที</li>
+    </ul>
+    <h3>Training data</h3>
+    <ul>
+      <li><code>outputs/clean_dataset_with_segments.csv</code></li>
+      <li>Remove <code>anomaly_flag = 1</code></li>
+      <li>Target column: <code>segment</code></li>
+    </ul>
+    <h3>สิ่งที่ต้องหลีกเลี่ยง</h3>
+    <ul>
+      <li>Leakage columns like <code>vote_*</code>, <code>PC*</code>, <code>anomaly_score</code></li>
+      <li>Top-3 ranking columns as direct target leaks</li>
+    </ul>
+    <h3>Business result</h3>
+    <p>a reusable classifier for dashboard scoring and batch prediction</p>
+  </section>
+
+  <section id="slide11" class="slide">
+    <h2>Supervised Feature Contract</h2>
+    <h3>Feature policy</h3>
+    <ul>
+      <li>เฉพาะ approved survey features ที่เข้าโมเดลได้</li>
+      <li>Missing values ถูกจัดการเป็น <code>__missing__</code></li>
+      <li>ทุกอย่างถูกแปลงเป็น string สำหรับ one-hot encoding</li>
+    </ul>
+    <h3>Code snippet</h3>
+    <pre><code>feature_columns = get_supervised_feature_columns(df)
+X = df.loc[:, feature_columns].copy().fillna("__missing__").astype(str)
+y = pd.to_numeric(df[TARGET_COLUMN], errors="raise").astype(int)</code></pre>
+    <h3>ทำไมสิ่งนี้ถึงสำคัญ</h3>
+    <ul>
+      <li>โมเดลตรงกันข้ามระหว่าง training, scoring, และ dashboard input</li>
+      <li>Feature contract เดียวกันป้องกัน accidental leakage</li>
+    </ul>
+    <h3>Model input shape</h3>
+    <ul>
+      <li>18 supervised features</li>
+      <li>2 classes: segment 1 และ segment 2</li>
+    </ul>
+  </section>
+
+  <section id="slide12" class="slide">
+    <h2>Supervised Training Workflow</h2>
+    <h3>Training setup</h3>
+    <ul>
+      <li>Clean rows after anomaly removal: <strong>122</strong></li>
+      <li>Holdout split ใช้ stratification เพื่อรักษา class balance</li>
+    </ul>
+    <h3>Candidate models</h3>
+    <ul>
+      <li>Logistic Regression</li>
+      <li>Random Forest</li>
+      <li>Gradient Boosting</li>
+      <li>RBF SVM</li>
+    </ul>
+    <h3>Model selection rule</h3>
+    <ul>
+      <li>Primary: <code>macro F1</code></li>
+      <li>Then: <code>weighted F1</code></li>
+      <li>Then: <code>accuracy</code></li>
+    </ul>
+    <h3>Code snippet</h3>
+    <pre><code>comparison, fitted_models, predictions = evaluate_model_suite(
+    model_builders, X_train, y_train, X_test, y_test,
+)
+best_model_name = str(comparison.iloc[0]["model_name"])</code></pre>
+    <h3>Design choice</h3>
+    <p>Logistic, Random Forest, และ SVM ใช้ <code>class_weight="balanced"</code> ตามความเหมาะสม</p>
+  </section>
+
+  <section id="slide13" class="slide">
+    <h2>Supervised Results</h2>
+    <h3>Best model: <code>random_forest</code></h3>
+    <ul>
+      <li>Accuracy: <strong>0.88</strong></li>
+      <li>Macro F1: <strong>0.797</strong></li>
+      <li>Weighted F1: <strong>0.864</strong></li>
+      <li>ROC AUC: <strong>0.759</strong></li>
+    </ul>
+    <h3>Model comparison</h3>
+    <table>
+      <tr><th>Model</th><th>Accuracy</th><th>Macro F1</th><th>Weighted F1</th></tr>
+      <tr><td>Random Forest</td><td>0.88</td><td>0.797</td><td>0.864</td></tr>
+      <tr><td>Gradient Boosting</td><td>0.80</td><td>0.762</td><td>0.811</td></tr>
+      <tr><td>SVM (RBF)</td><td>0.72</td><td>0.636</td><td>0.727</td></tr>
+      <tr><td>Logistic Regression</td><td>0.52</td><td>0.500</td><td>0.552</td></tr>
+    </table>
+    <h3>Holdout confusion matrix</h3>
+    <ul>
+      <li>Actual segment 1: 3 correct, 3 missed</li>
+      <li>Actual segment 2: 19 correct, 0 false positive</li>
+    </ul>
+    <h3>Per-class interpretation</h3>
+    <ul>
+      <li>Segment 1 recall: <strong>0.50</strong> (minority class, harder to predict)</li>
+      <li>Segment 2 recall: <strong>1.00</strong></li>
+      <li>โมเดลแข็งกว่าบน majority class</li>
+    </ul>
+  </section>
+
+  <section id="slide14" class="slide">
+    <h2>Scoring Flow</h2>
+    <h3>เมื่อเราให้คะแนนแถวใหม่</h3>
+    <ul>
+      <li>Load trained model artifact</li>
+      <li>Prepare input frame ด้วย feature contract เดียวกัน</li>
+      <li>Predict segment และ probability distribution</li>
+      <li>Save result to SQLite สำหรับ traceability</li>
+    </ul>
+    <h3>Code snippet</h3>
+    <pre><code>prediction_frame = predict_supervised_segment(bundle.model_path, input_payload)
+append_prediction_history(
+    bundle.history_db_path,
+    source="dashboard",
+    model_name=str(bundle.metrics.get("best_model_name", bundle.model_path.stem)),
+    predicted_segment=predicted_segment,
+    probability_map=probability_map,
+    input_payload=input_payload,
+)</code></pre>
+    <h3>CLI support</h3>
+    <p><code>scripts/predict_supervised_segment.py</code> รองรับ batch scoring ด้วย <code>--model-path</code>, <code>--input-csv</code>, <code>--output-csv</code>, และ <code>--history-db</code></p>
+  </section>
+
+  <section id="slide15" class="slide">
+    <h2>Dashboard Usage</h2>
+    <h3>Supervised tab ประกอบด้วย</h3>
+    <ul>
+      <li>Prediction form</li>
+      <li>Result card พร้อม confidence chart</li>
+      <li>Per-class metrics table</li>
+      <li>Model comparison chart</li>
+      <li>Confusion matrix</li>
+      <li>Feature importance</li>
+      <li>ROC curve</li>
+      <li>Recent prediction history</li>
+    </ul>
+    <h3>How the dashboard loads</h3>
+    <pre><code>bundle = load_supervised_dashboard_bundle(output_dir)
+render_supervised_tab(bundle, recent_history=...)</code></pre>
+    <h3>ทำไมสิ่งนี้ถึงสำคัญ</h3>
+    <p>Business users สามารถทดสอบแถว, ตรวจสอบผลลัพธ์, และดู usage trail ในที่เดียว</p>
+  </section>
+
+  <section id="slide16" class="slide">
+    <h2>Business Strategy</h2>
+    <h3>Segment 1 - Premium Quality Seekers</h3>
+    <ul>
+      <li>Lead with premium look and feel</li>
+      <li>ใช้ natural / quality cues ที่เด่นกว่า</li>
+      <li>ทำให้บรรจุภัณฑ์ดูน่าเชื่อถือ ออกแบบมาอย่างดี และโดดเด่น</li>
+    </ul>
+    <h3>Segment 2 - Main Market</h3>
+    <ul>
+      <li>Keep the message simple and clear</li>
+      <li>เน้นรสชาติ ความไว้วางใจ และคุ้มค่า</li>
+      <li>ใช้บรรจุภัณฑ์ที่เข้าใจง่ายเมื่อมองเร็ว</li>
+    </ul>
+    <h3>Packaging implication</h3>
+    <p>opt03 เป็นทิศทางออกแบบหลักเพราะชนะ top-3 vote ranking ข้ามทั้งสอง segment</p>
+    <h3>Campaign implication</h3>
+    <p>รักษาการออกแบบหลักไว้หนึ่งอัน แล้วปรับ message layer สำหรับ premium vs mass-market audiences</p>
+  </section>
+
+  <section id="slide17" class="slide">
+    <h2>Limitations</h2>
+    <h3>Unsupervised limitations</h3>
+    <ul>
+      <li>Silhouette score: <strong>0.193</strong></li>
+      <li>Davies-Bouldin: <strong>2.032</strong></li>
+      <li>Cophenetic correlation: <strong>0.473</strong></li>
+    </ul>
+    <h3>What this means</h3>
+    <p>clusters มีประโยชน์สำหรับ business storytelling แต่ไม่ใช่กลุ่มธรรมชาติที่แยกออกอย่างสมบูรณ์</p>
+    <h3>Supervised limitations</h3>
+    <ul>
+      <li>Segment 1 recall: <strong>0.50</strong></li>
+      <li>minority class ต้องการตัวอย่างเพิ่มเติม</li>
+    </ul>
+    <h3>Recommended wording</h3>
+    <p>เรียกนี่ว่า pragmatic segmentation system ไม่ใช่ cluster boundary ที่สมบูรณ์แบบ</p>
+  </section>
+
+  <section id="slide18" class="slide">
+    <h2>Final Takeaway</h2>
+    <h3>สิ่งที่โปรเจกต์ส่งมอบ</h3>
+    <ul>
+      <li>EDA ให้ read ที่ชัดเจนเกี่ยวกับ survey behavior</li>
+      <li>Unsupervised learning แปลง survey preferences เป็นสอง personas ที่สามารถดำเนินการได้</li>
+      <li>Supervised learning ทำให้ผลลัพธ์เป็นระบบให้คะแนนที่ใช้งานได้จริง</li>
+      <li>Dashboard เชื่อมโมเดลกับ business usage และ audit history</li>
+    </ul>
+    <h3>Final recommendation</h3>
+    <ul>
+      <li>ใช้ opt03 เป็นทิศทางออกแบบหลัก</li>
+      <li>ปรับ communication ตาม segment</li>
+      <li>เก็บตัวอย่าง premium เพิ่มในรอบ survey ถัดไปเพื่อปรับปรุง minority-class recall</li>
+    </ul>
+  </section>
+
+  <section id="slide19" class="slide">
+    <h2>Backup: Metric Definitions</h2>
+    <h3>Unsupervised metrics</h3>
+    <ul>
+      <li><strong>Silhouette:</strong> how well a sample fits its cluster vs others</li>
+      <li><strong>Davies-Bouldin:</strong> lower is better; measures compactness and separation</li>
+      <li><strong>Cophenetic correlation:</strong> how well hierarchical clustering preserves distances</li>
+    </ul>
+    <h3>Supervised metrics</h3>
+    <ul>
+      <li><strong>Accuracy:</strong> overall correct predictions</li>
+      <li><strong>Macro F1:</strong> average F1 across classes with equal class weight</li>
+      <li><strong>Weighted F1:</strong> F1 weighted by support</li>
+      <li><strong>ROC AUC:</strong> probability ranking quality for binary classification</li>
+    </ul>
+  </section>
+
+  <section id="slide20" class="slide">
+    <h2>Backup: Code Appendix</h2>
+    <h3>EDA / cleaning</h3>
+    <pre><code>raw_df = load_raw_export(data_path)
+completed_df = filter_completed_responses(raw_df, top3_column=top3_column)</code></pre>
+    <h3>Unsupervised orchestration</h3>
+    <pre><code>feature_bundle = _build_feature_bundle(completed_df, top3_column=top3_column)
+pca_bundle = _run_pca_pipeline(feature_bundle["ipsatized_option_ratings"])</code></pre>
+    <h3>Supervised scoring</h3>
+    <pre><code>prediction_frame = predict_supervised_segment(model_path, input_data)</code></pre>
+    <h3>Dashboard state</h3>
+    <pre><code>bundle = load_supervised_dashboard_bundle(output_dir)</code></pre>
+    <p><strong>ใช้ slide นี้เฉพาะเมื่อ panel ถามเส้นทางโค้ดที่แน่นอนเท่านั้น</strong></p>
+  </section>
+
+  <script>
+    const slides = document.querySelectorAll('.slide');
+    slides.forEach((_, i) => {
+      const dot = document.createElement('a');
+      dot.href = '#slide' + (i + 1);
+      dot.title = 'Slide ' + (i + 1);
+      document.getElementById('nav').appendChild(dot);
+    });
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+          const id = entry.target.id;
+          document.querySelector('nav a[href="#' + id + '"]').classList.add('active');
+        }
+      });
+    }, { threshold: 0.5 });
+
+    slides.forEach(slide => observer.observe(slide));
+  </script>
+</body>
+</html>
