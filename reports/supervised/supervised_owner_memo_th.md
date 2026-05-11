@@ -1,11 +1,11 @@
-# บันทึกสำหรับทีมธุรกิจ
+# Supervised Owner Memo
 
-- โมเดลที่ใช้เป็น source of truth: `random_forest`
-- Accuracy บน holdout set: 0.880
-- Macro F1 บน holdout set: 0.797
-- ใช้ dashboard แท็บ Supervised เพื่อดูการเทียบโมเดล, confusion matrix, และ feature importance
-- ถ้าต้องการ export ไปใช้งานภายนอก ให้หยิบ `best_model.pkl` และ `metrics_summary.json` เป็นหลัก
+- Source of truth model: `random_forest`
+- Accuracy on holdout set: 0.880
+- Macro F1 on holdout set: 0.797
+- Use the Supervised dashboard tab to review model comparison, confusion matrix, and feature importance.
+- If you export the model for external use, keep `best_model.pkl` and `metrics_summary.json` together.
 
-## วิธีตีความผล
-- ถ้า confusion matrix มีค่าผิดพลาดสูงในบางกลุ่ม แปลว่า segment อาจยังซ้อนทับกัน และควรทบทวน feature engineering
-- ถ้า feature importance กระจุกที่คอลัมน์เดิมจำนวนมาก แปลว่าข้อมูล survey มี signal ค่อนข้างแคบ ควรพิจารณาเพิ่มคำถามในรอบถัดไป
+## What the metrics mean
+- If the confusion matrix is skewed in one class, the segment labels may still overlap and feature engineering should be revisited.
+- If feature importance concentrates on a few columns, the survey contains strong signals and the model can be simplified later.

@@ -30,6 +30,6 @@ def test_write_reports_from_output_dir_creates_markdown_files(
     model_text = model_report.read_text(encoding="utf-8")
     owner_text = owner_memo.read_text(encoding="utf-8")
 
-    assert "รายงานโมเดล Supervised Learning" in model_text
-    assert "โมเดลที่ดีที่สุด" in model_text
-    assert "source of truth" in owner_text
+    assert "Model Justification" in model_text
+    assert "Per-class metrics" in model_text
+    assert "Source of truth model" in owner_text

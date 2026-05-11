@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, Mapping
 
 import pandas as pd
 
@@ -44,19 +44,36 @@ def load_report_context(output_dir: str | Path) -> SupervisedReportContext:
 def render_supervised_model_report(context: SupervisedReportContext) -> str:
     metrics = context.metrics
     best_row = context.comparison.iloc[0]
+    per_class_rows = _build_per_class_metric_rows(metrics)
     report_lines = [
-        "# รายงานโมเดล Supervised Learning",
+        "# Supervised Learning Model Report",
         "",
-        "## สรุปผู้บริหาร",
-        f"- จำนวนตัวอย่างที่ใช้ฝึก: {metrics['row_count']} ราย",
-        f"- จำนวนฟีเจอร์หลังเข้ารหัส: {metrics['feature_count']} ฟีเจอร์",
-        f"- โมเดลที่ดีที่สุด: {metrics['best_model_name']}",
+        "## Executive Summary",
+        f"- Training rows used: {metrics['row_count']}",
+        f"- Encoded feature count: {metrics['feature_count']}",
+        f"- Best model: {metrics['best_model_name']}",
         f"- Accuracy: {metrics['best_model_accuracy']:.3f}",
         f"- Macro F1: {metrics['best_model_macro_f1']:.3f}",
         f"- Weighted F1: {metrics['best_model_weighted_f1']:.3f}",
-        f"- ROC AUC: {metrics['roc_auc']:.3f}" if metrics.get("roc_auc") is not None else "- ROC AUC: n/a",
+        (
+            f"- ROC AUC: {metrics['roc_auc']:.3f}"
+            if metrics.get("roc_auc") is not None
+            else "- ROC AUC: n/a"
+        ),
         "",
-        "## เปรียบเทียบโมเดล",
+        "## Model Justification",
+        (
+            f"- Selected `{metrics['best_model_name']}` because it ranked first on macro F1, "
+            "weighted F1, and accuracy in the holdout comparison."
+        ),
+        (
+            f"- Holdout performance for the selected model: accuracy {float(best_row['accuracy']):.3f}, "
+            f"macro F1 {float(best_row['macro_f1']):.3f}, weighted F1 {float(best_row['weighted_f1']):.3f}."
+        ),
+        "- Anomaly rows were excluded before training, so the comparison is based on clean segment labels only.",
+        "- The model suite uses the approved supervised feature contract and avoids leakage columns.",
+        "",
+        "## Model Comparison",
         _markdown_table(
             ["model", "accuracy", "macro_f1", "weighted_f1"],
             [
@@ -68,6 +85,25 @@ def render_supervised_model_report(context: SupervisedReportContext) -> str:
                 ]
                 for _, row in context.comparison.iterrows()
             ],
+        ),
+        "",
+        "## Per-class metrics",
+        (
+            _markdown_table(
+                ["class", "precision", "recall", "f1_score", "support"],
+                [
+                    [
+                        row["label"],
+                        f"{row['precision']:.3f}",
+                        f"{row['recall']:.3f}",
+                        f"{row['f1_score']:.3f}",
+                        row["support"],
+                    ]
+                    for row in per_class_rows
+                ],
+            )
+            if per_class_rows
+            else "_No per-class metrics available._"
         ),
         "",
         "## Confusion Matrix",
@@ -92,12 +128,12 @@ def render_supervised_model_report(context: SupervisedReportContext) -> str:
             ],
         ),
         "",
-        "## คำแนะนำเชิงธุรกิจ",
-        f"- กลุ่มที่สะท้อนด้วย segment มากที่สุดควรอธิบายด้วยโมเดล `{metrics['best_model_name']}` เพราะให้ผลดีที่สุดบนชุดทดสอบ",
-        f"- ควรใช้ feature ที่เด่นที่สุด 3 อันดับแรกจากโมเดลนี้เป็นตัวขับ narrative ใน dashboard และ deck สำหรับลูกค้า",
-        f"- ใช้ confusion matrix เพื่อตรวจว่ากลุ่มใดสับสนกันมากที่สุดก่อนนำไปออกแบบ campaign segmentation จริง",
+        "## Business Guidance",
+        f"- Use `{metrics['best_model_name']}` as the source of truth for segment prediction.",
+        "- Revisit feature engineering if the confusion matrix shows a strong class bias.",
+        "- Use the top three features from the importance table as the narrative backbone in dashboard and slides.",
         "",
-        "## ไฟล์ผลลัพธ์ที่เกี่ยวข้อง",
+        "## Output Files",
         "- `outputs/supervised/metrics_summary.json`",
         "- `outputs/supervised/model_comparison.csv`",
         "- `outputs/supervised/confusion_matrix.csv`",
@@ -112,17 +148,17 @@ def render_supervised_owner_memo(context: SupervisedReportContext) -> str:
     metrics = context.metrics
     return "\n".join(
         [
-            "# บันทึกสำหรับทีมธุรกิจ",
+            "# Supervised Owner Memo",
             "",
-            f"- โมเดลที่ใช้เป็น source of truth: `{metrics['best_model_name']}`",
-            f"- Accuracy บน holdout set: {metrics['best_model_accuracy']:.3f}",
-            f"- Macro F1 บน holdout set: {metrics['best_model_macro_f1']:.3f}",
-            "- ใช้ dashboard แท็บ Supervised เพื่อดูการเทียบโมเดล, confusion matrix, และ feature importance",
-            "- ถ้าต้องการ export ไปใช้งานภายนอก ให้หยิบ `best_model.pkl` และ `metrics_summary.json` เป็นหลัก",
+            f"- Source of truth model: `{metrics['best_model_name']}`",
+            f"- Accuracy on holdout set: {metrics['best_model_accuracy']:.3f}",
+            f"- Macro F1 on holdout set: {metrics['best_model_macro_f1']:.3f}",
+            "- Use the Supervised dashboard tab to review model comparison, confusion matrix, and feature importance.",
+            "- If you export the model for external use, keep `best_model.pkl` and `metrics_summary.json` together.",
             "",
-            "## วิธีตีความผล",
-            "- ถ้า confusion matrix มีค่าผิดพลาดสูงในบางกลุ่ม แปลว่า segment อาจยังซ้อนทับกัน และควรทบทวน feature engineering",
-            "- ถ้า feature importance กระจุกที่คอลัมน์เดิมจำนวนมาก แปลว่าข้อมูล survey มี signal ค่อนข้างแคบ ควรพิจารณาเพิ่มคำถามในรอบถัดไป",
+            "## What the metrics mean",
+            "- If the confusion matrix is skewed in one class, the segment labels may still overlap and feature engineering should be revisited.",
+            "- If feature importance concentrates on a few columns, the survey contains strong signals and the model can be simplified later.",
         ]
     ).rstrip() + "\n"
 
@@ -166,6 +202,29 @@ def run_supervised_workflow(
         "pipeline": pipeline_result,
         "report_paths": pipeline_result["report_paths"],
     }
+
+
+def _build_per_class_metric_rows(metrics: Mapping[str, Any]) -> list[dict[str, Any]]:
+    report = metrics.get("classification_report")
+    class_labels = metrics.get("class_labels") or []
+    if not isinstance(report, Mapping) or not class_labels:
+        return []
+
+    rows: list[dict[str, Any]] = []
+    for label in class_labels:
+        summary = report.get(str(label))
+        if not isinstance(summary, Mapping):
+            continue
+        rows.append(
+            {
+                "label": f"Segment {label}",
+                "precision": float(summary.get("precision", 0.0)),
+                "recall": float(summary.get("recall", 0.0)),
+                "f1_score": float(summary.get("f1-score", 0.0)),
+                "support": int(summary.get("support", 0)),
+            }
+        )
+    return rows
 
 
 def _markdown_table(headers: list[str], rows: list[list[Any]]) -> str:

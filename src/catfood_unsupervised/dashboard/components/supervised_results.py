@@ -13,6 +13,7 @@ def render_prediction_result_panel(
     prediction_frame: pd.DataFrame | None,
     metrics: Mapping[str, Any],
 ) -> html.Div:
+    per_class_metrics = _render_per_class_metrics_panel(metrics)
     if prediction_frame is None or prediction_frame.empty:
         return html.Div(
             [
@@ -29,6 +30,7 @@ def render_prediction_result_panel(
                     ],
                     className="supervised-results__metric-card",
                 ),
+                per_class_metrics,
             ],
             className="supervised-results__empty",
         )
@@ -71,6 +73,7 @@ def render_prediction_result_panel(
                 figure=build_confidence_figure(probability_map, row.get("predicted_segment")),
                 config={"displaylogo": False, "responsive": True},
             ),
+            per_class_metrics,
             html.Div(
                 [
                     html.Div("Model used", className="supervised-results__meta-label"),
@@ -81,6 +84,83 @@ def render_prediction_result_panel(
         ],
         className="supervised-results__panel",
     )
+
+
+def _render_per_class_metrics_panel(metrics: Mapping[str, Any]) -> html.Div:
+    rows = _build_per_class_metric_rows(metrics)
+    if not rows:
+        return html.Div(
+            [
+                html.Div("Per-class metrics", className="supervised-results__eyebrow"),
+                html.P(
+                    "Per-class precision, recall, and F1 will appear here when classification metrics are available.",
+                    className="supervised-results__lede",
+                ),
+            ],
+            className="supervised-results__empty",
+        )
+
+    return html.Div(
+        [
+            html.Div("Per-class metrics", className="supervised-results__eyebrow"),
+            html.H5("Holdout classification report", className="supervised-results__title"),
+            html.Table(
+                [
+                    html.Thead(
+                        html.Tr(
+                            [
+                                html.Th("Class"),
+                                html.Th("Precision"),
+                                html.Th("Recall"),
+                                html.Th("F1"),
+                                html.Th("Support"),
+                            ]
+                        )
+                    ),
+                    html.Tbody(
+                        [
+                            html.Tr(
+                                [
+                                    html.Td(str(row["label"])),
+                                    html.Td(f'{row["precision"]:.3f}'),
+                                    html.Td(f'{row["recall"]:.3f}'),
+                                    html.Td(f'{row["f1_score"]:.3f}'),
+                                    html.Td(str(row["support"])),
+                                ]
+                            )
+                            for row in rows
+                        ]
+                    ),
+                ],
+                className="table table-sm table-striped supervised-results__table",
+            ),
+        ],
+        className="supervised-results__panel supervised-results__panel--metrics",
+    )
+
+
+def _build_per_class_metric_rows(metrics: Mapping[str, Any]) -> list[dict[str, Any]]:
+    report = metrics.get("classification_report")
+    class_labels = metrics.get("class_labels") or []
+    if not isinstance(report, Mapping) or not class_labels:
+        return []
+
+    rows: list[dict[str, Any]] = []
+    for label in class_labels:
+        key = str(label)
+        summary = report.get(key)
+        if not isinstance(summary, Mapping):
+            continue
+        rows.append(
+            {
+                "label": f"Segment {label}",
+                "precision": float(summary.get("precision", 0.0)),
+                "recall": float(summary.get("recall", 0.0)),
+                "f1_score": float(summary.get("f1-score", 0.0)),
+                "support": int(summary.get("support", 0)),
+            }
+        )
+    return rows
 
 
 def render_recent_history_panel(history_df: pd.DataFrame | None, limit: int = 5) -> html.Div:
