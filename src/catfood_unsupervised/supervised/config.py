@@ -2,6 +2,12 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from catfood_unsupervised.shared.paths import (
+    PROJECT_ROOT,
+    SUPERVISED_OUTPUT_DIR,
+    SUPERVISED_REPORT_DIR,
+)
+
 from catfood_unsupervised.supervised.schema import (
     ANOMALY_COLUMN,
     FEATURE_COLUMNS,
@@ -10,10 +16,9 @@ from catfood_unsupervised.supervised.schema import (
 )
 
 
-PROJECT_ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_INPUT_PATH = PROJECT_ROOT / "outputs" / "clean_dataset_with_segments.csv"
-DEFAULT_OUTPUT_DIR = PROJECT_ROOT / "outputs" / "supervised"
-DEFAULT_REPORT_DIR = PROJECT_ROOT / "reports" / "supervised"
+DEFAULT_OUTPUT_DIR = SUPERVISED_OUTPUT_DIR
+DEFAULT_REPORT_DIR = SUPERVISED_REPORT_DIR
 
 MODEL_ORDER = (
     "logistic_regression",
@@ -41,6 +46,8 @@ __all__ = [
     "PROJECT_ROOT",
     "RANDOM_STATE",
     "SCORING_ENTRYPOINT",
+    "SUPERVISED_OUTPUT_DIR",
+    "SUPERVISED_REPORT_DIR",
     "TARGET_COLUMN",
     "TEST_SIZE",
 ]
