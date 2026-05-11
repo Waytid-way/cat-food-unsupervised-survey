@@ -1,0 +1,23 @@
+from __future__ import annotations
+
+from catfood_unsupervised.shared.paths import (
+    OUTPUT_DIR,
+    PROJECT_ROOT,
+    RAW_DATA_PATH,
+    REPORT_DIR,
+    SUPERVISED_OUTPUT_DIR,
+    SUPERVISED_REPORT_DIR,
+    UNSUPERVISED_OUTPUT_DIR,
+    UNSUPERVISED_REPORT_DIR,
+)
+
+__all__ = [
+    "OUTPUT_DIR",
+    "PROJECT_ROOT",
+    "RAW_DATA_PATH",
+    "REPORT_DIR",
+    "SUPERVISED_OUTPUT_DIR",
+    "SUPERVISED_REPORT_DIR",
+    "UNSUPERVISED_OUTPUT_DIR",
+    "UNSUPERVISED_REPORT_DIR",
+]
