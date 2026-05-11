@@ -1,0 +1,3 @@
+from catfood_unsupervised.unsupervised.config import UNSUPERVISED_OUTPUT_DIR, UNSUPERVISED_REPORT_DIR
+
+__all__ = ["UNSUPERVISED_OUTPUT_DIR", "UNSUPERVISED_REPORT_DIR"]
