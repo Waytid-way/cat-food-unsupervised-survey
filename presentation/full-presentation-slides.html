@@ -266,6 +266,132 @@ ipsatized_option_ratings = pd.DataFrame(
     <p>a reusable classifier for dashboard scoring and batch prediction</p>
   </section>
 
+  <section id="slide11" class="slide">
+    <h2>Supervised Feature Contract</h2>
+    <h3>Feature policy</h3>
+    <ul>
+      <li>เฉพาะ approved survey features ที่เข้าโมเดลได้</li>
+      <li>Missing values ถูกจัดการเป็น <code>__missing__</code></li>
+      <li>ทุกอย่างถูกแปลงเป็น string สำหรับ one-hot encoding</li>
+    </ul>
+    <h3>Code snippet</h3>
+    <pre><code>feature_columns = get_supervised_feature_columns(df)
+X = df.loc[:, feature_columns].copy().fillna("__missing__").astype(str)
+y = pd.to_numeric(df[TARGET_COLUMN], errors="raise").astype(int)</code></pre>
+    <h3>ทำไมสิ่งนี้ถึงสำคัญ</h3>
+    <ul>
+      <li>โมเดลตรงกันข้ามระหว่าง training, scoring, และ dashboard input</li>
+      <li>Feature contract เดียวกันป้องกัน accidental leakage</li>
+    </ul>
+    <h3>Model input shape</h3>
+    <ul>
+      <li>18 supervised features</li>
+      <li>2 classes: segment 1 และ segment 2</li>
+    </ul>
+  </section>
+
+  <section id="slide12" class="slide">
+    <h2>Supervised Training Workflow</h2>
+    <h3>Training setup</h3>
+    <ul>
+      <li>Clean rows after anomaly removal: <strong>122</strong></li>
+      <li>Holdout split ใช้ stratification เพื่อรักษา class balance</li>
+    </ul>
+    <h3>Candidate models</h3>
+    <ul>
+      <li>Logistic Regression</li>
+      <li>Random Forest</li>
+      <li>Gradient Boosting</li>
+      <li>RBF SVM</li>
+    </ul>
+    <h3>Model selection rule</h3>
+    <ul>
+      <li>Primary: <code>macro F1</code></li>
+      <li>Then: <code>weighted F1</code></li>
+      <li>Then: <code>accuracy</code></li>
+    </ul>
+    <h3>Code snippet</h3>
+    <pre><code>comparison, fitted_models, predictions = evaluate_model_suite(
+    model_builders, X_train, y_train, X_test, y_test,
+)
+best_model_name = str(comparison.iloc[0]["model_name"])</code></pre>
+    <h3>Design choice</h3>
+    <p>Logistic, Random Forest, และ SVM ใช้ <code>class_weight="balanced"</code> ตามความเหมาะสม</p>
+  </section>
+
+  <section id="slide13" class="slide">
+    <h2>Supervised Results</h2>
+    <h3>Best model: <code>random_forest</code></h3>
+    <ul>
+      <li>Accuracy: <strong>0.88</strong></li>
+      <li>Macro F1: <strong>0.797</strong></li>
+      <li>Weighted F1: <strong>0.864</strong></li>
+      <li>ROC AUC: <strong>0.759</strong></li>
+    </ul>
+    <h3>Model comparison</h3>
+    <table>
+      <tr><th>Model</th><th>Accuracy</th><th>Macro F1</th><th>Weighted F1</th></tr>
+      <tr><td>Random Forest</td><td>0.88</td><td>0.797</td><td>0.864</td></tr>
+      <tr><td>Gradient Boosting</td><td>0.80</td><td>0.762</td><td>0.811</td></tr>
+      <tr><td>SVM (RBF)</td><td>0.72</td><td>0.636</td><td>0.727</td></tr>
+      <tr><td>Logistic Regression</td><td>0.52</td><td>0.500</td><td>0.552</td></tr>
+    </table>
+    <h3>Holdout confusion matrix</h3>
+    <ul>
+      <li>Actual segment 1: 3 correct, 3 missed</li>
+      <li>Actual segment 2: 19 correct, 0 false positive</li>
+    </ul>
+    <h3>Per-class interpretation</h3>
+    <ul>
+      <li>Segment 1 recall: <strong>0.50</strong> (minority class, harder to predict)</li>
+      <li>Segment 2 recall: <strong>1.00</strong></li>
+      <li>โมเดลแข็งกว่าบน majority class</li>
+    </ul>
+  </section>
+
+  <section id="slide14" class="slide">
+    <h2>Scoring Flow</h2>
+    <h3>เมื่อเราให้คะแนนแถวใหม่</h3>
+    <ul>
+      <li>Load trained model artifact</li>
+      <li>Prepare input frame ด้วย feature contract เดียวกัน</li>
+      <li>Predict segment และ probability distribution</li>
+      <li>Save result to SQLite สำหรับ traceability</li>
+    </ul>
+    <h3>Code snippet</h3>
+    <pre><code>prediction_frame = predict_supervised_segment(bundle.model_path, input_payload)
+append_prediction_history(
+    bundle.history_db_path,
+    source="dashboard",
+    model_name=str(bundle.metrics.get("best_model_name", bundle.model_path.stem)),
+    predicted_segment=predicted_segment,
+    probability_map=probability_map,
+    input_payload=input_payload,
+)</code></pre>
+    <h3>CLI support</h3>
+    <p><code>scripts/predict_supervised_segment.py</code> รองรับ batch scoring ด้วย <code>--model-path</code>, <code>--input-csv</code>, <code>--output-csv</code>, และ <code>--history-db</code></p>
+  </section>
+
+  <section id="slide15" class="slide">
+    <h2>Dashboard Usage</h2>
+    <h3>Supervised tab ประกอบด้วย</h3>
+    <ul>
+      <li>Prediction form</li>
+      <li>Result card พร้อม confidence chart</li>
+      <li>Per-class metrics table</li>
+      <li>Model comparison chart</li>
+      <li>Confusion matrix</li>
+      <li>Feature importance</li>
+      <li>ROC curve</li>
+      <li>Recent prediction history</li>
+    </ul>
+    <h3>How the dashboard loads</h3>
+    <pre><code>bundle = load_supervised_dashboard_bundle(output_dir)
+render_supervised_tab(bundle, recent_history=...)</code></pre>
+    <h3>ทำไมสิ่งนี้ถึงสำคัญ</h3>
+    <p>Business users สามารถทดสอบแถว, ตรวจสอบผลลัพธ์, และดู usage trail ในที่เดียว</p>
+  </section>
+
   <script>
     const slides = document.querySelectorAll('.slide');
     slides.forEach((_, i) => {
