@@ -146,6 +146,126 @@ completed_df = filter_completed_responses(raw_df, top3_column=top3_column)</code
     <p><strong>การตีความ:</strong> opt03 เป็นผู้นำชัดเจน รสชาติและส่วนผสมธรรมชาติครองการตัดสินใจ ความชอบมีโครงสร้างไม่ใช่สุ่ม การแบ่งกลุ่มคุ้มค่า</p>
   </section>
 
+  <section id="slide6" class="slide">
+    <h2>Unsupervised Overview</h2>
+    <h3>ทำไมต้องเริ่มจาก unsupervised</h3>
+    <ul>
+      <li>เราไม่รู้กลุ่มลูกค้าที่แท้จริงก่อนการสร้างโมเดล</li>
+      <li>แบบสำรวจออกแบบมาเพื่อค้นหารูปแบบ ไม่ใช่แค่พยากรณ์ label</li>
+    </ul>
+    <h3>Pipeline</h3>
+    <pre><code>Encode -> Ipsatize -> Impute -> PCA -> K-Means -> Hierarchical validation -> Isolation Forest</code></pre>
+    <h3>สิ่งที่ได้จากขั้นตอนนี้</h3>
+    <ul>
+      <li>customer segments</li>
+      <li>anomaly flags</li>
+      <li>a business-friendly persona view</li>
+    </ul>
+    <h3>Reference outputs</h3>
+    <ul>
+      <li><code>outputs/metrics_summary.json</code></li>
+      <li><code>outputs/segment_profiles.csv</code></li>
+      <li><code>reports/unsupervised_report_th.md</code></li>
+    </ul>
+  </section>
+
+  <section id="slide7" class="slide">
+    <h2>Unsupervised Feature Engineering</h2>
+    <h3>สิ่งที่โค้ดทำ</h3>
+    <ul>
+      <li>แปลง top-3 rankings เป็น weighted vote features</li>
+      <li>ลด response-style bias ด้วย ipsatization</li>
+      <li>เติม missing buy-factor values ก่อน clustering</li>
+      <li>สร้าง merged feature matrix สำหรับ clustering และ anomaly detection</li>
+    </ul>
+    <h3>Code snippet</h3>
+    <pre><code>vote_features = build_vote_features(
+    rankings,
+    rank_columns=rankings.columns.tolist(),
+    option_count=OPTION_COUNT,
+)
+
+ipsatized_option_ratings = pd.DataFrame(
+    ipsatize_rows(option_ratings.to_numpy()),
+    index=completed_df.index,
+    columns=[f"{column}_ips" for column in option_ratings.columns],
+).fillna(0.0)</code></pre>
+    <h3>ทำไม ipsatization ถึงสำคัญ</h3>
+    <p>มันลบค่าเฉลี่ยของผู้ตอบแต่ละคนออกจาก rating ของพวกเขา ช่วยแยกความชอบที่แท้จริงออกจากนิสัยการให้คะแนนสูงหรือต่ำของแต่ละคน</p>
+  </section>
+
+  <section id="slide8" class="slide">
+    <h2>Unsupervised Evaluation</h2>
+    <h3>PCA</h3>
+    <ul>
+      <li>Input features: 50 Likert ratings</li>
+      <li>Selected components: <strong>8</strong></li>
+      <li>Total explained variance: <strong>68.6%</strong></li>
+    </ul>
+    <h3>K-Means sweep</h3>
+    <ul>
+      <li>Best k = 2</li>
+      <li>Silhouette score: <strong>0.193</strong></li>
+      <li>Davies-Bouldin: <strong>2.032</strong></li>
+    </ul>
+    <h3>Hierarchical validation</h3>
+    <ul>
+      <li>Ward linkage</li>
+      <li>Cophenetic correlation: <strong>0.473</strong></li>
+    </ul>
+    <p><strong>การตีความ:</strong> clusters ใช้งานได้ แต่ไม่แยกออกอย่างชัดเจน นี่คือ pragmatic segmentation ไม่ใช่การแบ่งที่สมบูรณ์แบบทางคณิตศาสตร์</p>
+  </section>
+
+  <section id="slide9" class="slide">
+    <h2>Segments & Anomalies</h2>
+    <h3>Final segments</h3>
+    <table>
+      <tr><th>Segment</th><th>Persona</th><th>n</th><th>Share</th></tr>
+      <tr><td>1</td><td>Premium Quality Seekers</td><td>36</td><td>24.3%</td></tr>
+      <tr><td>2</td><td>Main Market</td><td>112</td><td>75.7%</td></tr>
+    </table>
+    <h3>Segment 1</h3>
+    <ul>
+      <li>more quality / design / natural-ingredient oriented</li>
+      <li>stronger premium signal</li>
+      <li>better fit for premium packaging language</li>
+    </ul>
+    <h3>Segment 2</h3>
+    <ul>
+      <li>larger mass-market base</li>
+      <li>more practical and trust-driven</li>
+      <li>better fit for clear, simple, confidence-building packaging</li>
+    </ul>
+    <h3>Anomaly detection</h3>
+    <ul>
+      <li>Isolation Forest found <strong>26 anomalies</strong></li>
+      <li>Anomaly rate: <strong>17.6%</strong></li>
+    </ul>
+    <p><strong>Caution:</strong> The segment boundary is useful, but there is still overlap.</p>
+  </section>
+
+  <section id="slide10" class="slide">
+    <h2>Bridge to Supervised</h2>
+    <h3>ทำไมต้องมี supervised</h3>
+    <ul>
+      <li>Unsupervised บอกเราโครงสร้างกลุ่ม</li>
+      <li>Supervised ช่วยให้เราให้คะแนนแถวลูกค้าใหม่ได้ทันที</li>
+    </ul>
+    <h3>Training data</h3>
+    <ul>
+      <li><code>outputs/clean_dataset_with_segments.csv</code></li>
+      <li>Remove <code>anomaly_flag = 1</code></li>
+      <li>Target column: <code>segment</code></li>
+    </ul>
+    <h3>สิ่งที่ต้องหลีกเลี่ยง</h3>
+    <ul>
+      <li>Leakage columns like <code>vote_*</code>, <code>PC*</code>, <code>anomaly_score</code></li>
+      <li>Top-3 ranking columns as direct target leaks</li>
+    </ul>
+    <h3>Business result</h3>
+    <p>a reusable classifier for dashboard scoring and batch prediction</p>
+  </section>
+
   <script>
     const slides = document.querySelectorAll('.slide');
     slides.forEach((_, i) => {
