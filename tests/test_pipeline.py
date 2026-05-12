@@ -4,6 +4,36 @@ from pathlib import Path
 import pandas as pd
 
 from catfood_unsupervised.pipeline import run_pipeline
+from catfood_unsupervised.preprocessing import (
+    fit_buy_factor_imputer as original_fit,
+)
+
+
+def test_run_pipeline_fits_buy_factor_imputer_on_reference_split(
+    monkeypatch, tmp_path: Path
+):
+    data_path = _write_pipeline_fixture(tmp_path / "mini_pipeline.csv")
+    captured: dict[str, int] = {}
+
+    def spy_fit_buy_factor_imputer(reference_df, columns, n_neighbors=5):
+        captured["reference_rows"] = len(reference_df)
+        captured["column_count"] = len(columns)
+        return original_fit(reference_df, columns, n_neighbors=n_neighbors)
+
+    monkeypatch.setattr(
+        "catfood_unsupervised.pipeline.fit_buy_factor_imputer",
+        spy_fit_buy_factor_imputer,
+    )
+
+    run_pipeline(
+        data_path=data_path,
+        output_dir=tmp_path / "outputs",
+        k_values=[2, 3],
+        random_state=7,
+    )
+
+    assert captured["reference_rows"] < 8
+    assert captured["column_count"] == 5
 
 
 def test_run_pipeline_writes_metrics_summary_and_segmented_dataset(tmp_path: Path):
@@ -93,3 +123,30 @@ def _write_pipeline_fixture(path: Path) -> Path:
 
     pd.DataFrame(rows).to_csv(path, index=False, header=False, encoding="utf-8")
     return path
+
+
+def test_run_pipeline_fits_buy_factor_imputer_on_reference_split(
+    monkeypatch, tmp_path: Path
+):
+    data_path = _write_pipeline_fixture(tmp_path / "mini_pipeline.csv")
+    captured: dict[str, int] = {}
+
+    def spy_fit_buy_factor_imputer(reference_df, columns, n_neighbors=5):
+        captured["reference_rows"] = len(reference_df)
+        captured["column_count"] = len(columns)
+        return original_fit(reference_df, columns, n_neighbors=n_neighbors)
+
+    monkeypatch.setattr(
+        "catfood_unsupervised.pipeline.fit_buy_factor_imputer",
+        spy_fit_buy_factor_imputer,
+    )
+
+    run_pipeline(
+        data_path=data_path,
+        output_dir=tmp_path / "outputs",
+        k_values=[2, 3],
+        random_state=7,
+    )
+
+    assert captured["reference_rows"] < 8
+    assert captured["column_count"] == 5

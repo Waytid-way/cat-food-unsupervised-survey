@@ -23,7 +23,12 @@ from catfood_unsupervised.models import (
     run_isolation_forest,
     run_pca,
 )
-from catfood_unsupervised.preprocessing import impute_buy_factors, map_series_values
+from sklearn.model_selection import train_test_split
+from catfood_unsupervised.preprocessing import (
+    fit_buy_factor_imputer,
+    map_series_values,
+    transform_buy_factors,
+)
 
 
 TOP3_COLUMN_INDEX = 72
@@ -75,7 +80,9 @@ def run_pipeline(
     if len(completed_df) < 3:
         raise ValueError("run_pipeline requires at least 3 completed top-3 responses.")
 
-    feature_bundle = _build_feature_bundle(completed_df, top3_column=top3_column)
+    feature_bundle = _build_feature_bundle(
+        completed_df, top3_column=top3_column, random_state=random_state
+    )
     pca_bundle = _run_pca_pipeline(
         feature_bundle["ipsatized_option_ratings"],
         random_state=random_state,
@@ -131,6 +138,7 @@ def run_pipeline(
         segment_series=segment_series,
         anomaly_results=anomaly_results,
         isolation_contamination=isolation_contamination,
+        feature_bundle=feature_bundle,
     )
     _write_outputs(
         output_paths=output_paths,
@@ -150,7 +158,7 @@ def run_pipeline(
 
 
 def _build_feature_bundle(
-    completed_df: pd.DataFrame, *, top3_column: str
+    completed_df: pd.DataFrame, *, top3_column: str, random_state: int
 ) -> dict[str, pd.DataFrame]:
     rankings = _extract_top3_rankings(completed_df[top3_column])
     vote_features = build_vote_features(
@@ -165,9 +173,23 @@ def _build_feature_bundle(
         IMPORTANCE_MAPPING,
         prefix="buy_factor",
     )
-    imputed_buy_factors = impute_buy_factors(
-        buy_factors, columns=buy_factors.columns.tolist()
+    imputation_reference_df, _ = train_test_split(
+        buy_factors,
+        test_size=0.2,
+        random_state=random_state,
+        shuffle=True,
     )
+    buy_factor_artifact = fit_buy_factor_imputer(
+        imputation_reference_df,
+        buy_factors.columns.tolist(),
+        n_neighbors=5,
+    )
+    imputed_buy_factors = transform_buy_factors(
+        buy_factors,
+        buy_factors.columns.tolist(),
+        buy_factor_artifact,
+    )
+    imputation_reference_rows = int(len(imputation_reference_df))
     packaging_effect = _encode_block(
         completed_df,
         [PACKAGING_EFFECT_COLUMN_INDEX],
@@ -211,6 +233,7 @@ def _build_feature_bundle(
         "demographics": demographics,
         "anomaly_features": anomaly_features,
         "correlation_features": anomaly_features,
+        "imputation_reference_rows": imputation_reference_rows,
     }
 
 
@@ -430,6 +453,7 @@ def _build_metrics(
     segment_series: pd.Series,
     anomaly_results: pd.DataFrame,
     isolation_contamination: float | str,
+    feature_bundle: dict[str, Any],
 ) -> dict[str, Any]:
     metrics = {
         "data_path": str(Path(data_path).resolve()),
@@ -453,6 +477,14 @@ def _build_metrics(
             for segment, size in segment_series.value_counts().sort_index().items()
         },
         "output_files": {name: str(path) for name, path in output_paths.items()},
+        "imputation": {
+            "reference_rows": int(feature_bundle["imputation_reference_rows"]),
+            "target_rows": int(len(completed_df)),
+            "reference_fraction": float(
+                feature_bundle["imputation_reference_rows"] / len(completed_df)
+            ),
+            "n_neighbors": 5,
+        },
     }
     return _json_safe(metrics)
 
