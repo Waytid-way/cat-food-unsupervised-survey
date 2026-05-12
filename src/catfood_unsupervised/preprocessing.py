@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
+from dataclasses import dataclass
 from typing import Any
 
 import pandas as pd
@@ -74,4 +75,64 @@ def impute_buy_factors(
     imputer = KNNImputer(n_neighbors=effective_neighbors)
     imputed_values = imputer.fit_transform(output.loc[:, imputable_columns])
     output.loc[:, imputable_columns] = imputed_values
+    return output
+
+
+@dataclass(frozen=True)
+class BuyFactorImputerArtifact:
+    imputer: KNNImputer | None
+    imputable_columns: tuple[str, ...]
+
+
+def fit_buy_factor_imputer(
+    reference_df: pd.DataFrame,
+    columns: Sequence[str],
+    n_neighbors: int = 5,
+) -> BuyFactorImputerArtifact:
+    selected_columns = list(columns)
+    if not selected_columns:
+        return BuyFactorImputerArtifact(imputer=None, imputable_columns=())
+    if n_neighbors < 1:
+        raise ValueError("n_neighbors must be at least 1.")
+
+    reference_frame = reference_df.loc[:, selected_columns].apply(
+        pd.to_numeric, errors="coerce"
+    )
+    imputable_columns = tuple(
+        reference_frame.columns[reference_frame.notna().any(axis=0)].tolist()
+    )
+    if not imputable_columns:
+        return BuyFactorImputerArtifact(imputer=None, imputable_columns=())
+
+    effective_neighbors = min(n_neighbors, len(reference_frame))
+    imputer = KNNImputer(n_neighbors=effective_neighbors)
+    imputer.fit(reference_frame.loc[:, list(imputable_columns)])
+    return BuyFactorImputerArtifact(
+        imputer=imputer,
+        imputable_columns=imputable_columns,
+    )
+
+
+def transform_buy_factors(
+    df: pd.DataFrame,
+    columns: Sequence[str],
+    artifact: BuyFactorImputerArtifact,
+) -> pd.DataFrame:
+    selected_columns = list(columns)
+    if not selected_columns:
+        return pd.DataFrame(index=df.index)
+
+    output = df.loc[:, selected_columns].apply(pd.to_numeric, errors="coerce")
+    output = output.astype(float).copy()
+    if artifact.imputer is None or not artifact.imputable_columns:
+        return output
+
+    imputable_in_output = [
+        col for col in artifact.imputable_columns if col in selected_columns
+    ]
+    if not imputable_in_output:
+        return output
+
+    transformed = artifact.imputer.transform(output.loc[:, imputable_in_output])
+    output.loc[:, imputable_in_output] = transformed
     return output
