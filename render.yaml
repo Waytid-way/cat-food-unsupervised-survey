@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: catfood-unsupervised-survey
+    runtime: python
+    plan: free
+    branch: master
+    autoDeployTrigger: commit
+    buildCommand: python -m pip install -e . && python scripts/build_deployment_artifacts.py
+    startCommand: gunicorn wsgi:server --bind 0.0.0.0:$PORT
+    healthCheckPath: /
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
