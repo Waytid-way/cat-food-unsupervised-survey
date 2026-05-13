@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from catfood_unsupervised.shared.paths import (
+    CLEAN_DATASET_PATH,
     PROJECT_ROOT,
     SUPERVISED_OUTPUT_DIR,
     SUPERVISED_REPORT_DIR,
@@ -16,7 +17,7 @@ from catfood_unsupervised.supervised.schema import (
 )
 
 
-DEFAULT_INPUT_PATH = PROJECT_ROOT / "outputs" / "clean_dataset_with_segments.csv"
+DEFAULT_INPUT_PATH = CLEAN_DATASET_PATH
 DEFAULT_OUTPUT_DIR = SUPERVISED_OUTPUT_DIR
 DEFAULT_REPORT_DIR = SUPERVISED_REPORT_DIR
 

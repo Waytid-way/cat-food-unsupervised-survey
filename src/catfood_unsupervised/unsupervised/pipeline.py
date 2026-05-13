@@ -25,6 +25,7 @@ from catfood_unsupervised.unsupervised.models import (
     run_pca,
 )
 from catfood_unsupervised.unsupervised.preprocessing import impute_buy_factors
+from catfood_unsupervised.unsupervised.config import RANDOM_STATE
 
 
 TOP3_COLUMN_INDEX = 72
@@ -63,7 +64,7 @@ def run_pipeline(
     data_path: str | Path | None = None,
     output_dir: str | Path | None = None,
     *,
-    random_state: int = 42,
+    random_state: int = RANDOM_STATE,
     k_values: Sequence[int] | None = None,
     pca_variance_threshold: float = 0.8,
     max_pca_components: int = 8,

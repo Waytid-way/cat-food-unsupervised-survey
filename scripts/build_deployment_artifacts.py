@@ -14,35 +14,34 @@ from repo_bootstrap import ensure_src_on_path
 
 ensure_src_on_path()
 
-from catfood_unsupervised.shared.paths import (
-    OUTPUT_DIR,
-    RAW_DATA_PATH,
-    SUPERVISED_OUTPUT_DIR,
-    SUPERVISED_REPORT_DIR,
-    UNSUPERVISED_OUTPUT_DIR,
-    UNSUPERVISED_REPORT_DIR,
-)
+import catfood_unsupervised.shared.paths as paths
+import catfood_unsupervised.unsupervised.config as unsupervised_config
+import catfood_unsupervised.supervised.config as supervised_config
 from catfood_unsupervised.supervised.pipeline import run_supervised_pipeline
-from catfood_unsupervised.unsupervised.pipeline import run_pipeline
-from catfood_unsupervised.unsupervised.reporting import write_reports_from_output_dir
+from catfood_unsupervised.reporting import run_unsupervised_workflow
 
 
 def main() -> None:
-    run_pipeline(data_path=RAW_DATA_PATH, output_dir=UNSUPERVISED_OUTPUT_DIR)
-    write_reports_from_output_dir(UNSUPERVISED_OUTPUT_DIR, UNSUPERVISED_REPORT_DIR)
+    run_unsupervised_workflow(
+        data_path=paths.RAW_DATA_PATH,
+        output_dir=paths.UNSUPERVISED_OUTPUT_DIR,
+        report_dir=paths.UNSUPERVISED_REPORT_DIR,
+        random_state=unsupervised_config.RANDOM_STATE,
+    )
 
-    source_csv = UNSUPERVISED_OUTPUT_DIR / "clean_dataset_with_segments.csv"
-    release_csv = OUTPUT_DIR / "clean_dataset_with_segments.csv"
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    release_csv = supervised_config.DEFAULT_INPUT_PATH
+    source_csv = paths.UNSUPERVISED_OUTPUT_DIR / paths.CLEAN_DATASET_FILENAME
+    paths.OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     shutil.copy2(source_csv, release_csv)
 
     run_supervised_pipeline(
         input_path=release_csv,
-        output_dir=SUPERVISED_OUTPUT_DIR,
-        report_dir=SUPERVISED_REPORT_DIR,
+        output_dir=supervised_config.DEFAULT_OUTPUT_DIR,
+        report_dir=supervised_config.DEFAULT_REPORT_DIR,
+        random_state=supervised_config.RANDOM_STATE,
     )
 
-    print(f"Wrote release artifacts to {OUTPUT_DIR.resolve()}")
+    print(f"Wrote release artifacts to {paths.OUTPUT_DIR.resolve()}")
     print(f"Prepared supervised input at {release_csv.resolve()}")
 
 
