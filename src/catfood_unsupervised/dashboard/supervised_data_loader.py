@@ -52,6 +52,22 @@ def load_supervised_dashboard_bundle(output_dir: str | Path) -> SupervisedDashbo
     )
 
 
+def load_supervised_runtime_bundle(output_dir: str | Path) -> SupervisedDashboardBundle:
+    try:
+        return load_supervised_dashboard_bundle(output_dir)
+    except Exception:
+        return SupervisedDashboardBundle(
+            metrics={},
+            comparison=pd.DataFrame(),
+            confusion_matrix=pd.DataFrame(),
+            feature_importance=pd.DataFrame(),
+            predictions=pd.DataFrame(),
+            feature_options=load_supervised_feature_options(DEFAULT_INPUT_PATH),
+            model_path=Path(output_dir) / SUPERVISED_MODEL_PATH.name,
+            history_db_path=Path(output_dir) / SUPERVISED_HISTORY_DB_PATH.name,
+        )
+
+
 def _require_file(path: Path) -> None:
     if not path.exists():
         raise FileNotFoundError(f"{path.name} not found in {path.parent}")
@@ -74,3 +90,11 @@ def load_supervised_feature_options(input_path: str | Path) -> dict[str, list[st
         )
         feature_options[column] = values
     return feature_options
+
+
+__all__ = [
+    "SupervisedDashboardBundle",
+    "load_supervised_dashboard_bundle",
+    "load_supervised_feature_options",
+    "load_supervised_runtime_bundle",
+]

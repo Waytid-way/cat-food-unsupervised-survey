@@ -16,6 +16,8 @@ def test_dashboard_shell_contains_sidebar_header_and_content():
     assert "Supervised" in rendered
     assert "Business Insight" in rendered
     assert "Welcome back, Team!" in rendered
+    assert "Add new widget" not in rendered
+    assert "Log out" not in rendered
 
 
 def test_dashboard_app_uses_multi_page():
